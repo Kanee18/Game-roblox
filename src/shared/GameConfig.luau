@@ -245,6 +245,55 @@ GameConfig.Videotron = {
 }
 
 --------------------------------------------------------------------------------
+-- AUDIO (musik latar & efek suara) — lihat docs/07-audio.md
+--------------------------------------------------------------------------------
+GameConfig.Audio = {
+	MusicVolume = 0.35,
+	SfxVolume = 0.7,
+	CrossfadeTime = 1.5, -- detik, perpindahan musik antar-area
+
+	-- Musik latar per area. Isi dengan ID audio dari Creator Store (Toolbox > Audio),
+	-- contoh: "rbxassetid://1234567890" atau cukup angkanya: 1234567890.
+	-- Kosong ("") = memakai melodi kotak-musik bawaan (lihat FallbackMusic).
+	Music = {
+		Lobby = "", -- kata kunci: "fantasy village", "peaceful adventure"
+		Stage1 = "", -- "adventure upbeat", "platformer"
+		Stage2 = "", -- "epic battle", "action drums"
+		Stage3 = "", -- "electronic puzzle", "synth mystery"
+		Stage4 = "", -- "uplifting sky", "flying orchestral"
+	},
+	-- true = jika ID musik kosong atau gagal dimuat, mainkan melodi lembut dari
+	-- suara bawaan Roblox (tidak perlu ID apa pun). false = hening.
+	FallbackMusic = true,
+
+	-- Efek suara. Bawaan memakai file suara yang sudah ada di setiap client Roblox
+	-- (rbxasset://sounds/...), jadi langsung berbunyi tanpa perlu ID.
+	-- Boleh diganti dengan "rbxassetid://ID" dari Creator Store.
+	-- Speed = PlaybackSpeed (nada), Volume dikalikan SfxVolume.
+	Sfx = {
+		Click = { Id = "rbxasset://sounds/clickfast.wav", Volume = 0.5 },
+		Notify = { Id = "rbxasset://sounds/clickfast.wav", Volume = 0.3, Speed = 1.2 },
+		Error = { Id = "rbxasset://sounds/button.wav", Volume = 0.6, Speed = 0.8 },
+		Announcement = { Id = "rbxasset://sounds/electronicpingshort.wav", Volume = 0.9, Speed = 0.8 },
+		Correct = { Id = "rbxasset://sounds/electronicpingshort.wav", Volume = 0.8, Speed = 1.25 },
+		Wrong = { Id = "rbxasset://sounds/collide.wav", Volume = 0.7, Speed = 0.7 },
+		Success = { Id = "rbxasset://sounds/electronicpingshort.wav", Volume = 0.6, Speed = 1.0 },
+		Fanfare = { Id = "rbxasset://sounds/victory.wav", Volume = 0.8 },
+		PortalOpen = { Id = "rbxasset://sounds/Rocket whoosh 01.wav", Volume = 0.6 },
+		Teleport = { Id = "rbxasset://sounds/swoosh.wav", Volume = 0.7 },
+		Shoot = { Id = "rbxasset://sounds/Rocket shot.wav", Volume = 0.35, Speed = 1.5 },
+		CoreHit = { Id = "rbxasset://sounds/collide.wav", Volume = 0.9, Speed = 0.45 },
+		Pickup = { Id = "rbxasset://sounds/unsheath.wav", Volume = 0.5, Speed = 1.3 },
+		Launch = { Id = "rbxasset://sounds/swoosh.wav", Volume = 0.8, Speed = 0.8 },
+		Boost = { Id = "rbxasset://sounds/Rocket whoosh 01.wav", Volume = 0.6, Speed = 1.3 },
+		Slow = { Id = "rbxasset://sounds/collide.wav", Volume = 0.6, Speed = 0.5 },
+		Land = { Id = "rbxasset://sounds/action_jump_land.mp3", Volume = 0.8 },
+		WindLoop = { Id = "rbxasset://sounds/action_falling.mp3", Volume = 0.35 },
+		Chime = { Id = "rbxasset://sounds/electronicpingshort.wav", Volume = 0.2 }, -- nada melodi kotak-musik
+	},
+}
+
+--------------------------------------------------------------------------------
 -- TEMA UI (gaya fantasi/anime: panel krem + aksen emas)
 --------------------------------------------------------------------------------
 GameConfig.Theme = {

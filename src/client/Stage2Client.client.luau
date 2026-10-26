@@ -20,6 +20,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local GameConfig = require(Shared:WaitForChild("GameConfig"))
 local Remotes = require(Shared:WaitForChild("Remotes"))
 local UiKit = require(Shared:WaitForChild("UiKit"))
+local Sfx = require(Shared:WaitForChild("Sfx"))
 
 local Theme = GameConfig.Theme
 local STAGE_ID = "Stage2"
@@ -242,6 +243,7 @@ local function showReveal()
 		revealCore.TextColor3 = Theme.SuccessDark
 	end
 	revealCard.Show(math.max(CONFIG.RevealTime - 0.5, 2))
+	Sfx.Play(if getState("CoreHit", false) then "CoreHit" else "Success")
 end
 
 --------------------------------------------------------------------------------
@@ -292,6 +294,7 @@ local function shoot(tool: Tool)
 		return
 	end
 	lastShotAt = now
+	Sfx.Play("Shoot")
 
 	local target, hitVirus = getAim()
 	local muzzle = tool:FindFirstChild("Tip") or tool:FindFirstChild("Handle")

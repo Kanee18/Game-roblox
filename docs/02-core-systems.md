@@ -37,8 +37,8 @@ File suffixes tell you which object type to create:
 | `src/server/Services/Stages/` | **Folder** in `ServerScriptService > Services` | `Stages` |
 | `src/server/Services/Stages/*.luau` | **ModuleScript** in `ServerScriptService > Services > Stages` | same as file name, e.g. `Stage1_RoutingRunner` |
 | `src/server/QuizBank.luau` | **ModuleScript** directly in `ServerScriptService` | `QuizBank` |
-| `src/shared/Stage1Map.luau`, `src/shared/Stage4Map.luau` | **ModuleScript** in `ReplicatedStorage > Shared` | `Stage1Map`, `Stage4Map` |
-| `src/client/*.client.luau` | **LocalScript** in `StarterPlayer > StarterPlayerScripts` | `HudClient`, `AdminPanelClient`, `VideotronClient`, `Stage1Client` … `Stage4Client` |
+| `src/shared/Stage1Map.luau`, `src/shared/Stage4Map.luau`, `src/shared/Sfx.luau` | **ModuleScript** in `ReplicatedStorage > Shared` | `Stage1Map`, `Stage4Map`, `Sfx` |
+| `src/client/*.client.luau` | **LocalScript** in `StarterPlayer > StarterPlayerScripts` | `HudClient`, `AdminPanelClient`, `VideotronClient`, `AudioClient`, `Stage1Client` … `Stage4Client` |
 
 Rule of thumb: `.server.luau` → Script, `.client.luau` → LocalScript, plain `.luau` → ModuleScript. Names must match exactly (without the extension).
 
@@ -94,6 +94,7 @@ PointsService.AllReset:Connect(function() end)    -- teacher pressed "Reset Semu
   - **🔒 Tutup Semua Portal**
   - **🏠 Panggil Semua ke Lobby** teleports every student back to the lobby.
   - **♻️ Reset Semua Poin** requires a second click to confirm.
+  - **🎵 Musik semua siswa** turns background music on or off for everyone (see `docs/07-audio.md`).
   - **📢 Pengumuman** shows a big announcement banner on every screen. The text is filtered with `TextService`, as Roblox requires.
 - A closed portal is a grey, solid ForceField wall. Touching it shows *"🔒 Portal ini masih terkunci. Tunggu instruksi dari Guru, ya!"*
 - An open portal glows in its element color, with sparkles, a light, and its `Glow` parts set to Neon. Touching it teleports the student to `Workspace > Stages > StageN > Spawn`.

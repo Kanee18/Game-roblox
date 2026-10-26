@@ -21,6 +21,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local GameConfig = require(Shared:WaitForChild("GameConfig"))
 local Remotes = require(Shared:WaitForChild("Remotes"))
 local UiKit = require(Shared:WaitForChild("UiKit"))
+local Sfx = require(Shared:WaitForChild("Sfx"))
 
 local Theme = GameConfig.Theme
 local TOGGLE_KEY = Enum.KeyCode.G
@@ -145,6 +146,7 @@ local function buildPanel()
 			Parent = body,
 		})
 		button.Activated:Connect(function()
+			Sfx.Play("Click")
 			onClick(button)
 		end)
 		return button
@@ -232,6 +234,7 @@ local function buildPanel()
 		portalRows[stage.Id] = { Status = status, Button = button }
 
 		button.Activated:Connect(function()
+			Sfx.Play("Click")
 			adminAction:FireServer("SetPortal", stage.Id, not isPortalOpen(stage.Id))
 		end)
 		state:GetAttributeChangedSignal(GameConfig.PortalStatePrefix .. stage.Id):Connect(function()
@@ -271,6 +274,18 @@ local function buildPanel()
 			end
 		end)
 	end)
+
+	-- Musik latar untuk semua siswa (efek suara tetap menyala)
+	local musicButton = actionButton("", Theme.CreamDark, function()
+		adminAction:FireServer("SetMusic", state:GetAttribute("MusicEnabled") == false)
+	end)
+	local function refreshMusicButton()
+		local enabled = state:GetAttribute("MusicEnabled") ~= false
+		musicButton.Text = if enabled then "🎵 Musik semua siswa: NYALA" else "🔇 Musik semua siswa: MATI"
+		musicButton.BackgroundColor3 = if enabled then Theme.CreamDark else Theme.Danger
+	end
+	state:GetAttributeChangedSignal("MusicEnabled"):Connect(refreshMusicButton)
+	refreshMusicButton()
 
 	----------------------------------------------------------------------------
 	-- Pengumuman
@@ -319,6 +334,7 @@ local function buildPanel()
 	end
 
 	toggleButton.Activated:Connect(function()
+		Sfx.Play("Click")
 		setVisible(not panel.Visible)
 	end)
 	closeButton.Activated:Connect(function()

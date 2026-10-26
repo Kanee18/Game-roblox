@@ -139,6 +139,14 @@ local ACTIONS = {
 		NotifyService.ToAll("♻️ Semua Poin direset oleh Guru. Ayo mulai lagi!", "info")
 	end,
 
+	SetMusic = function(_admin: Player, enabled: any)
+		if typeof(enabled) ~= "boolean" then
+			return
+		end
+		Remotes.GetState():SetAttribute("MusicEnabled", enabled)
+		NotifyService.ToAll(if enabled then "🎵 Musik dinyalakan oleh Guru." else "🔇 Musik dimatikan oleh Guru.", "info")
+	end,
+
 	Announce = function(admin: Player, rawText: any)
 		local text = cleanText(rawText)
 		if not text then
@@ -193,6 +201,7 @@ local function onPlayerAdded(player: Player)
 end
 
 function AdminService.Start()
+	Remotes.GetState():SetAttribute("MusicEnabled", true)
 	Players.PlayerAdded:Connect(onPlayerAdded)
 	for _, player in Players:GetPlayers() do
 		task.spawn(onPlayerAdded, player)

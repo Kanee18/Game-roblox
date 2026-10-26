@@ -20,6 +20,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local GameConfig = require(Shared:WaitForChild("GameConfig"))
 local Remotes = require(Shared:WaitForChild("Remotes"))
 local UiKit = require(Shared:WaitForChild("UiKit"))
+local Sfx = require(Shared:WaitForChild("Sfx"))
 local Stage1Map = require(Shared:WaitForChild("Stage1Map"))
 
 local Theme = GameConfig.Theme
@@ -325,6 +326,7 @@ local function showFeedback(result)
 end
 
 local function showFinish(result)
+	Sfx.Play("Fanfare")
 	feedbackCard.Hide()
 	finishSubtitle.Text = `Hebat, {player.DisplayName}! Kamu sampai di tujuan seperti paket data yang dikirim router.`
 	finishStats.Text = `✅ Benar: {result.Correct}    ❌ Salah: {result.Wrong}`

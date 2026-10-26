@@ -21,6 +21,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local GameConfig = require(Shared:WaitForChild("GameConfig"))
 local Remotes = require(Shared:WaitForChild("Remotes"))
 local UiKit = require(Shared:WaitForChild("UiKit"))
+local Sfx = require(Shared:WaitForChild("Sfx"))
 
 local Theme = GameConfig.Theme
 local STAGE_ID = "Stage3"
@@ -214,6 +215,10 @@ end)
 
 --------------------------------------------------------------------------------
 stateRemote.OnClientEvent:Connect(function(state)
+	local previous = currentState
+	if state.Carrying and (previous == nil or previous.Carrying ~= state.Carrying) then
+		Sfx.Play("Pickup")
+	end
 	currentState = state
 	render()
 end)
@@ -243,6 +248,7 @@ feedbackRemote.OnClientEvent:Connect(function(result)
 end)
 
 completeRemote.OnClientEvent:Connect(function(result)
+	Sfx.Play("Fanfare")
 	resultCard.Hide()
 	missionSubtitle.Text = `Hebat, {player.DisplayName}! Kamu sudah mengenal perangkat keras jaringan.`
 	missionStats.Text = `✅ Benar: {result.Correct}    ❌ Salah: {result.Wrong}`

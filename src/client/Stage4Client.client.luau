@@ -23,6 +23,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local GameConfig = require(Shared:WaitForChild("GameConfig"))
 local Remotes = require(Shared:WaitForChild("Remotes"))
 local UiKit = require(Shared:WaitForChild("UiKit"))
+local Sfx = require(Shared:WaitForChild("Sfx"))
 local Stage4Map = require(Shared:WaitForChild("Stage4Map"))
 
 local Theme = GameConfig.Theme
@@ -324,6 +325,12 @@ local function stopFlight()
 		flight.Humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
 	end
 	setWind(nil, false)
+	if flight.Wind then
+		flight.Wind:Destroy()
+	end
+	if flight.Humanoid.Parent and flight.Humanoid.Health > 0 then
+		Sfx.Play("Land")
+	end
 	flight = nil
 	slowTint.Enabled = false
 	camera.CameraType = Enum.CameraType.Custom
@@ -361,6 +368,7 @@ local function startFlight()
 		Parent = root,
 	})
 	camera.CameraType = Enum.CameraType.Scriptable
+	Sfx.Play("Launch")
 
 	flight = {
 		Root = root,
@@ -368,6 +376,7 @@ local function startFlight()
 		Attachment = attachment,
 		Velocity = velocity,
 		Align = align,
+		Wind = Sfx.Loop("WindLoop"), -- desir angin selama terbang
 		Connection = nil :: RBXScriptConnection?,
 	}
 	effect.Kind = "None"
@@ -427,6 +436,7 @@ end)
 feedbackRemote.OnClientEvent:Connect(function(result)
 	effect.Kind = result.Effect
 	effect.Until = os.clock() + CONFIG.EffectDuration
+	Sfx.Play(if result.Effect == "Boost" then "Boost" else "Slow")
 
 	local gate = map.Gates[result.Gate]
 	local ring = gate and result.Slot and gate.Rings[result.Slot]
@@ -451,6 +461,7 @@ feedbackRemote.OnClientEvent:Connect(function(result)
 end)
 
 finishRemote.OnClientEvent:Connect(function(result)
+	Sfx.Play("Fanfare")
 	feedbackCard.Hide()
 	finishStats.Text = `✅ Benar: {result.Correct}    ❌ Salah: {result.Wrong}    📶 Terlewat: {result.Missed}`
 	local lines = {}

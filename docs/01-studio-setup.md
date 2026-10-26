@@ -242,6 +242,7 @@ ReplicatedStorage
 │   ├── GameConfig (ModuleScript)     ← ALL settings: admins, points, portals, stage names, theme
 │   ├── Remotes (ModuleScript)
 │   ├── UiKit (ModuleScript)
+│   ├── Sfx (ModuleScript)            ← sound effects player (sounds listed in GameConfig.Audio)
 │   ├── Stage1Map (ModuleScript)      ← reads the Stage 1 course layout (no answers inside)
 │   └── Stage4Map (ModuleScript)      ← reads the Stage 4 gates and glide line (no answers inside)
 ├── RemoteEvents (Folder)             ← created automatically at runtime, don't make it by hand
@@ -269,6 +270,7 @@ StarterPlayer
     ├── HudClient (LocalScript)
     ├── AdminPanelClient (LocalScript)
     ├── VideotronClient (LocalScript)
+    ├── AudioClient (LocalScript)     ← background music per area + 🔊 button
     ├── Stage1Client (LocalScript)
     ├── Stage2Client (LocalScript)
     ├── Stage3Client (LocalScript)

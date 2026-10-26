@@ -16,6 +16,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local GameConfig = require(Shared:WaitForChild("GameConfig"))
 local Remotes = require(Shared:WaitForChild("Remotes"))
 local UiKit = require(Shared:WaitForChild("UiKit"))
+local Sfx = require(Shared:WaitForChild("Sfx"))
 
 local Theme = GameConfig.Theme
 local TOAST_DURATION = 4
@@ -92,6 +93,8 @@ local function showPointsPopup(delta: number, reason: string?)
 	if text == "" then
 		return
 	end
+	-- Poin tidak pernah naik dari jawaban salah; delta 0 berarti pengurangan yang tertahan di 0.
+	Sfx.Play(if delta > 0 then "Correct" else "Wrong")
 	local color = if delta > 0 then Theme.Success elseif delta < 0 then Theme.Danger else Theme.Cream
 
 	local stroke = UiKit.textStroke(Theme.Night, 3)
@@ -142,7 +145,10 @@ local toastHolder = UiKit.new("Frame", {
 })
 local toastCount = 0
 
+local TOAST_SOUNDS = { portal = "PortalOpen", error = "Error" }
+
 local function showToast(text: string, kind: string?)
+	Sfx.Play(TOAST_SOUNDS[kind or "info"] or "Notify")
 	toastCount += 1
 	local accent = KIND_COLORS[kind or "info"] or Theme.Info
 	local stroke = UiKit.stroke(accent, 2, 1)
@@ -243,6 +249,7 @@ local announcementFrom = UiKit.label({
 local announcementToken = 0
 
 local function showAnnouncement(text: string, fromName: string?)
+	Sfx.Play("Announcement")
 	announcementToken += 1
 	local token = announcementToken
 	announcementBody.Text = text
