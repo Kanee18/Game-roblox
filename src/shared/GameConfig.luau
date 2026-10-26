@@ -150,6 +150,31 @@ GameConfig.Stage1 = {
 	DoorCooldown = 1, -- detik, mencegah satu langkah terhitung dua kali
 }
 
+-- Tahap 2 · Firewall Defender
+GameConfig.Stage2 = {
+	ToolName = "TongkatFirewall", -- senjata yang dibagikan saat masuk tahap ini
+
+	CorrectPoints = 10, -- tembakan pertama mengenai virus pembawa jawaban benar
+	SpeedBonusMax = 5, -- bonus tambahan untuk penjawab cepat
+	SpeedBonusWindow = 15, -- detik; bonus berkurang sampai 0 dalam waktu ini
+	WrongPoints = -5, -- tembakan pertama mengenai virus pembawa jawaban salah
+
+	MonstersPerWave = 4, -- 1 jawaban benar + 3 jawaban salah
+	MonsterSpeed = 7, -- stud per detik pada gelombang 1
+	SpeedPerWave = 0.4, -- virus makin cepat setiap gelombang
+	MaxMonsterSpeed = 12,
+	SpawnStagger = 1.5, -- detik; virus muncul tidak bersamaan
+
+	CoreMaxHP = 5, -- nyawa Inti Server (milik seluruh kelas)
+	CoreMinCorrectRatio = 0.5, -- jika siswa yang benar < 50%, Inti Server -1
+
+	IntermissionTime = 4, -- jeda sebelum gelombang berikutnya
+	RevealTime = 8, -- lama pengumuman jawaban
+	MaxWaveTime = 60, -- batas waktu satu gelombang
+	FireCooldown = 0.25, -- detik antar tembakan
+	MaxRange = 350, -- jarak tembak maksimal (stud)
+}
+
 --------------------------------------------------------------------------------
 -- VIDEOTRON (PAPAN PERINGKAT RAKSASA)
 --------------------------------------------------------------------------------

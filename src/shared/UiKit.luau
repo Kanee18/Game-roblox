@@ -12,6 +12,7 @@
 		})
 ]]
 
+local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 
 local GameConfig = require(script.Parent.GameConfig)
@@ -138,6 +139,104 @@ function UiKit.tween(
 	local tween = TweenService:Create(instance, info, goals)
 	tween:Play()
 	return tween
+end
+
+-- Kartu pop-up di tengah layar (hasil jawaban, finish, dll).
+--   local card = UiKit.card(screenGui, "HasilJawaban")
+--   local title = card.Line(1, { TextSize = 34 })   -- baris teks, urut menurut angka
+--   card.Stroke.Color = ...; card.Show(4); card.Hide()
+function UiKit.card(parent: Instance, name: string)
+	local stroke = UiKit.stroke(Theme.Gold, 4)
+	local frame = UiKit.new("Frame", {
+		Name = name,
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.4),
+		Size = UDim2.new(0.5, 0, 0, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		BackgroundColor3 = Theme.Cream,
+		Visible = false,
+		Parent = parent,
+	}, {
+		UiKit.corner(18),
+		stroke,
+		UiKit.padding(16),
+		UiKit.new("UISizeConstraint", { MinSize = Vector2.new(300, 0), MaxSize = Vector2.new(560, math.huge) }),
+		UiKit.new("UIListLayout", {
+			Padding = UDim.new(0, 8),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+			HorizontalAlignment = Enum.HorizontalAlignment.Center,
+		}),
+	})
+	local card = {
+		Frame = frame,
+		Stroke = stroke,
+		Scale = UiKit.new("UIScale", { Parent = frame }),
+		Token = 0,
+	}
+	function card.Line(order: number, props: { [string]: any }): TextLabel
+		return UiKit.label(merge({
+			Size = UDim2.new(1, 0, 0, 0),
+			AutomaticSize = Enum.AutomaticSize.Y,
+			TextColor3 = Theme.Ink,
+			LayoutOrder = order,
+			Parent = frame,
+		}, props))
+	end
+	function card.Show(duration: number)
+		card.Token += 1
+		local token = card.Token
+		frame.Visible = true
+		card.Scale.Scale = 0.85
+		UiKit.tween(card.Scale, 0.35, { Scale = 1 }, Enum.EasingStyle.Back)
+		task.delay(duration, function()
+			if card.Token == token then
+				frame.Visible = false
+			end
+		end)
+	end
+	function card.Hide()
+		card.Token += 1
+		frame.Visible = false
+	end
+	return card
+end
+
+-- Percikan partikel sekali jadi di sebuah posisi (efek tembakan, ledakan kecil).
+function UiKit.burst(position: Vector3, color: Color3, amount: number?)
+	local anchor = UiKit.new("Part", {
+		Anchored = true,
+		CanCollide = false,
+		CanQuery = false,
+		CanTouch = false,
+		Transparency = 1,
+		Size = Vector3.one,
+		CFrame = CFrame.new(position),
+		Parent = workspace,
+	})
+	local emitter = UiKit.new("ParticleEmitter", {
+		Texture = "rbxasset://textures/particles/sparkles_main.dds",
+		Color = ColorSequence.new(color),
+		LightEmission = 1,
+		Size = NumberSequence.new({
+			NumberSequenceKeypoint.new(0, 1.2),
+			NumberSequenceKeypoint.new(1, 0),
+		}),
+		Lifetime = NumberRange.new(0.6, 1.2),
+		Speed = NumberRange.new(8, 16),
+		SpreadAngle = Vector2.new(180, 180),
+		Rate = 0,
+		Parent = anchor,
+	})
+	if RunService:IsClient() then
+		emitter:Emit(amount or 50)
+	else
+		-- Di server: nyalakan sebentar (perubahan properti pasti terlihat di semua client).
+		emitter.Rate = (amount or 50) * 5
+		task.delay(0.2, function()
+			emitter.Enabled = false
+		end)
+	end
+	game:GetService("Debris"):AddItem(anchor, 2)
 end
 
 -- 12500 -> "12.500" (format angka Indonesia)

@@ -9,7 +9,6 @@
 	  * Kartu finish berisi rekap jawaban
 ]]
 
-local Debris = game:GetService("Debris")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -281,73 +280,12 @@ local function renderHud()
 	end
 end
 
--- Kartu pop-up di tengah layar (dipakai untuk hasil jawaban dan finish)
-local function createCard(name: string)
-	local stroke = UiKit.stroke(Theme.Gold, 4)
-	local frame = UiKit.new("Frame", {
-		Name = name,
-		AnchorPoint = Vector2.new(0.5, 0.5),
-		Position = UDim2.fromScale(0.5, 0.4),
-		Size = UDim2.new(0.5, 0, 0, 0),
-		AutomaticSize = Enum.AutomaticSize.Y,
-		BackgroundColor3 = Theme.Cream,
-		Visible = false,
-		Parent = gui,
-	}, {
-		UiKit.corner(18),
-		stroke,
-		UiKit.padding(16),
-		UiKit.new("UISizeConstraint", { MinSize = Vector2.new(300, 0), MaxSize = Vector2.new(560, math.huge) }),
-		UiKit.new("UIListLayout", {
-			Padding = UDim.new(0, 8),
-			SortOrder = Enum.SortOrder.LayoutOrder,
-			HorizontalAlignment = Enum.HorizontalAlignment.Center,
-		}),
-	})
-	local card = {
-		Frame = frame,
-		Stroke = stroke,
-		Scale = UiKit.new("UIScale", { Parent = frame }),
-		Token = 0,
-	}
-	function card.Line(order: number, props: { [string]: any }): TextLabel
-		local defaults = {
-			Size = UDim2.new(1, 0, 0, 0),
-			AutomaticSize = Enum.AutomaticSize.Y,
-			TextColor3 = Theme.Ink,
-			LayoutOrder = order,
-			Parent = frame,
-		}
-		for key, value in props do
-			defaults[key] = value
-		end
-		return UiKit.label(defaults)
-	end
-	function card.Show(duration: number)
-		card.Token += 1
-		local token = card.Token
-		frame.Visible = true
-		card.Scale.Scale = 0.85
-		UiKit.tween(card.Scale, 0.35, { Scale = 1 }, Enum.EasingStyle.Back)
-		task.delay(duration, function()
-			if card.Token == token then
-				frame.Visible = false
-			end
-		end)
-	end
-	function card.Hide()
-		card.Token += 1
-		frame.Visible = false
-	end
-	return card
-end
-
-local feedbackCard = createCard("HasilJawaban")
+local feedbackCard = UiKit.card(gui, "HasilJawaban")
 local feedbackTitle = feedbackCard.Line(1, { TextSize = 34 })
 local feedbackAnswer = feedbackCard.Line(2, { Font = Theme.FontBold, TextSize = 20 })
 local feedbackExplanation = feedbackCard.Line(3, { Font = Theme.FontBody, TextSize = 18 })
 
-local finishCard = createCard("Finish")
+local finishCard = UiKit.card(gui, "Finish")
 finishCard.Line(1, { TextSize = 38, Text = "🏁 SELAMAT!" })
 local finishSubtitle = finishCard.Line(2, { Font = Theme.FontBody, TextSize = 18 })
 local finishStats = finishCard.Line(3, { Font = Theme.FontBold, TextSize = 22 })
@@ -359,33 +297,11 @@ finishCard.Line(5, {
 	Text = "Injak pad 🏠 untuk kembali ke Lobby, atau masuk lagi untuk soal-soal baru!",
 })
 
--- Percikan partikel di pintu yang dipilih
-local function burst(part: BasePart, color: Color3)
-	local attachment = Instance.new("Attachment")
-	attachment.Parent = part
-	local emitter = UiKit.new("ParticleEmitter", {
-		Texture = "rbxasset://textures/particles/sparkles_main.dds",
-		Color = ColorSequence.new(color),
-		LightEmission = 1,
-		Size = NumberSequence.new({
-			NumberSequenceKeypoint.new(0, 1.2),
-			NumberSequenceKeypoint.new(1, 0),
-		}),
-		Lifetime = NumberRange.new(0.6, 1.2),
-		Speed = NumberRange.new(8, 16),
-		SpreadAngle = Vector2.new(180, 180),
-		Rate = 0,
-		Parent = attachment,
-	})
-	emitter:Emit(50)
-	Debris:AddItem(attachment, 2)
-end
-
 local function showFeedback(result)
 	local section = sections[result.Section]
 	local door = section and section.Doors[result.Slot]
 	if door then
-		burst(door.Trigger, if result.Correct then Theme.Success else Theme.Danger)
+		UiKit.burst(door.Trigger.Position, if result.Correct then Theme.Success else Theme.Danger)
 	end
 
 	finishCard.Hide()

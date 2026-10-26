@@ -213,7 +213,12 @@ Workspace
     │   ├── Sections (Folder)    ← Section1..N, each with Doors, QuestionBoard, Checkpoint
     │   ├── FinishArea (Folder)  ← Finish (Part) + ReturnToLobby (Part)
     │   └── FallZone (Part)      ← invisible; falling players return to their checkpoint
-    ├── Stage2 (Folder)
+    ├── Stage2 (Folder)          ← Firewall Defender, see docs/04-stage2-firewall-defender.md
+    │   ├── Spawn (Part)         ← REQUIRED
+    │   ├── Lanes (Folder)       ← Lane1..N, each with waypoint Parts named 1, 2, 3, ...
+    │   ├── SkyBoard (Part)      ← question board in the sky
+    │   ├── Core (Model)         ← the Inti Server the class defends
+    │   └── Monsters (Folder)    ← filled with viruses at runtime
     ├── Stage3 (Folder)
     └── Stage4 (Folder)
 
@@ -247,7 +252,7 @@ ServerScriptService
     ├── VideotronService (ModuleScript)
     └── Stages (Folder)               ← every ModuleScript here starts automatically
         ├── Stage1_RoutingRunner      ← done
-        ├── Stage2_FirewallDefender   ← later
+        ├── Stage2_FirewallDefender   ← done
         ├── Stage3_CableLabyrinth     ← later
         └── Stage4_BandwidthGlider    ← later
 
@@ -256,7 +261,11 @@ StarterPlayer
     ├── HudClient (LocalScript)
     ├── AdminPanelClient (LocalScript)
     ├── VideotronClient (LocalScript)
-    └── Stage1Client (LocalScript)
+    ├── Stage1Client (LocalScript)
+    └── Stage2Client (LocalScript)
+
+ServerStorage
+└── VirusMonster (Model, optional)    ← custom virus look for Stage 2; a built-in one is used otherwise
 ```
 
 Special part names that work in **any** stage folder under `Workspace > Stages`:

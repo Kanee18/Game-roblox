@@ -172,7 +172,146 @@ QuizBank.Stage1 = {
 	},
 }
 
--- QuizBank.Stage2 = { ... } -- Firewall Defender (langkah berikutnya)
+--------------------------------------------------------------------------------
+-- TAHAP 2 · FIREWALL DEFENDER — Keamanan Data & Virus
+-- Setiap soal butuh minimal 3 jawaban salah (4 virus per gelombang).
+-- Jawaban dibawa virus di atas kepalanya, jadi buat sependek mungkin.
+--------------------------------------------------------------------------------
+QuizBank.Stage2 = {
+	{
+		Question = "Program jahat yang dapat menggandakan diri dan merusak file di komputer disebut …",
+		Correct = "Virus komputer",
+		Wrong = { "Antivirus", "Firewall", "Browser" },
+		Explanation = "Virus komputer adalah salah satu jenis malware (program jahat) yang menyebar dan bisa merusak atau mencuri data.",
+	},
+	{
+		Question = "Aplikasi yang berfungsi mendeteksi dan menghapus virus disebut …",
+		Correct = "Antivirus",
+		Wrong = { "Malware", "Spam", "Trojan" },
+		Explanation = "Antivirus memindai file untuk menemukan dan membersihkan program jahat. Selalu perbarui antivirusmu!",
+	},
+	{
+		Question = "Sistem keamanan yang menyaring lalu lintas data masuk dan keluar jaringan disebut …",
+		Correct = "Firewall",
+		Wrong = { "Hotspot", "Spyware", "Bluetooth" },
+		Explanation = "Firewall seperti satpam jaringan: memeriksa data yang lewat dan memblokir yang mencurigakan.",
+	},
+	{
+		Question = "Manakah kata sandi (password) yang paling KUAT?",
+		Correct = "B3l@jar!Jarkom7",
+		Wrong = { "12345678", "password", "budi2012" },
+		Explanation = "Password kuat itu panjang dan memadukan huruf besar, huruf kecil, angka, dan simbol.",
+	},
+	{
+		Question = "Pesan atau situs palsu yang menyamar sebagai pihak resmi untuk mencuri password disebut …",
+		Correct = "Phishing",
+		Wrong = { "Streaming", "Browsing", "Upload" },
+		Explanation = "Phishing memancing korban memasukkan data pribadi di situs atau pesan palsu. Periksa alamatnya dan jangan asal klik tautan!",
+	},
+	{
+		Question = "Program jahat yang menyamar sebagai aplikasi berguna, padahal diam-diam merusak, disebut …",
+		Correct = "Trojan",
+		Wrong = { "Antivirus", "Firewall", "Driver" },
+		Explanation = "Trojan (Kuda Troya) berpura-pura menjadi program baik agar dipasang sendiri oleh korbannya.",
+	},
+	{
+		Question = "Malware yang mengunci file lalu meminta uang tebusan agar file bisa dibuka lagi disebut …",
+		Correct = "Ransomware",
+		Wrong = { "Freeware", "Shareware", "Firmware" },
+		Explanation = "Ransomware menyandera data. Membuat backup secara rutin adalah pertahanan terbaik.",
+	},
+	{
+		Question = "Program yang diam-diam memata-matai dan mengumpulkan informasi pengguna disebut …",
+		Correct = "Spyware",
+		Wrong = { "Hardware", "Brainware", "Firmware" },
+		Explanation = "Spyware mengintip aktivitas dan data pribadi tanpa izin pemiliknya.",
+	},
+	{
+		Question = "Mengubah data menjadi kode rahasia agar tidak bisa dibaca orang yang tidak berhak disebut …",
+		Correct = "Enkripsi",
+		Wrong = { "Kompresi", "Formatting", "Defragmentasi" },
+		Explanation = "Enkripsi mengacak data menjadi sandi. Hanya pemilik kunci yang bisa membukanya kembali (dekripsi).",
+	},
+	{
+		Question = "Membuat salinan data penting di tempat lain agar aman jika data asli rusak disebut …",
+		Correct = "Backup",
+		Wrong = { "Delete", "Format", "Restart" },
+		Explanation = "Backup (cadangan) menjaga data tetap aman walaupun komputer rusak atau terkena virus.",
+	},
+	{
+		Question = "Kode OTP yang dikirim ke ponsel saat login adalah contoh pengamanan …",
+		Correct = "Verifikasi dua langkah",
+		Wrong = { "Mode pesawat", "Mode gelap", "Hemat baterai" },
+		Explanation = "Verifikasi dua langkah menambah lapisan keamanan: selain password, dibutuhkan kode dari ponselmu.",
+	},
+	{
+		Question = "Seseorang meminta kode OTP yang masuk ke ponselmu. Apa yang harus kamu lakukan?",
+		Correct = "Jangan berikan",
+		Wrong = { "Berikan saja", "Kirim lewat chat", "Unggah ke medsos" },
+		Explanation = "Kode OTP bersifat rahasia. Siapa pun yang memintanya patut dicurigai sebagai penipu.",
+	},
+	{
+		Question = "Dari mana sebaiknya kita mengunduh aplikasi agar aman?",
+		Correct = "Toko aplikasi resmi",
+		Wrong = { "Tautan tak dikenal", "Iklan pop-up", "Pesan berantai" },
+		Explanation = "Unduh aplikasi dari sumber resmi agar terhindar dari malware yang disisipkan.",
+	},
+	{
+		Question = "Malware yang menyebar sendiri ke komputer lain melalui jaringan disebut …",
+		Correct = "Worm",
+		Wrong = { "Mouse", "Cookie", "Patch" },
+		Explanation = "Worm (cacing) dapat menggandakan diri dan menyebar lewat jaringan dengan sangat cepat.",
+	},
+	{
+		Question = "Manakah yang bisa menjadi tanda komputer terkena virus?",
+		Correct = "Iklan aneh terus muncul",
+		Wrong = { "Layar makin jernih", "Baterai makin awet", "Internet makin cepat" },
+		Explanation = "Komputer melambat, iklan aneh bermunculan, atau file hilang bisa menjadi tanda infeksi malware.",
+	},
+	{
+		Question = "Memperbarui (update) sistem operasi dan aplikasi secara rutin bertujuan untuk …",
+		Correct = "Menutup celah keamanan",
+		Wrong = { "Menghapus semua file", "Mengurangi memori", "Mematikan internet" },
+		Explanation = "Update berisi perbaikan keamanan (patch) yang menutup celah yang bisa dimanfaatkan peretas.",
+	},
+	{
+		Question = "Manakah data pribadi yang TIDAK boleh disebarkan sembarangan?",
+		Correct = "NIK & alamat rumah",
+		Wrong = { "Judul lagu favorit", "Warna kesukaan", "Nama tokoh kartun" },
+		Explanation = "Data pribadi seperti NIK, alamat, dan nomor telepon bisa disalahgunakan jika disebarkan.",
+	},
+	{
+		Question = "Setelah selesai memakai komputer di lab sekolah, sebaiknya kamu …",
+		Correct = "Log out dari akunmu",
+		Wrong = { "Biarkan akun terbuka", "Tulis password di meja", "Bagikan password" },
+		Explanation = "Selalu keluar (log out) dari akun di komputer umum agar akunmu tidak dipakai orang lain.",
+	},
+	{
+		Question = "Alamat situs yang lebih aman untuk memasukkan data biasanya diawali dengan …",
+		Correct = "https://",
+		Wrong = { "http://", "ftp://", "file://" },
+		Explanation = "HTTPS (ditandai ikon gembok) berarti data yang dikirim ke situs tersebut dienkripsi.",
+	},
+	{
+		Question = "Pesan massal yang tidak diinginkan, sering berisi iklan atau tautan berbahaya, disebut …",
+		Correct = "Spam",
+		Wrong = { "Spreadsheet", "Stiker", "Server" },
+		Explanation = "Spam adalah pesan sampah yang dikirim massal. Jangan klik tautan di dalamnya!",
+	},
+	{
+		Question = "Orang yang membobol sistem komputer orang lain tanpa izin untuk berbuat jahat disebut …",
+		Correct = "Cracker",
+		Wrong = { "Admin jaringan", "Teknisi resmi", "Operator sekolah" },
+		Explanation = "Cracker (peretas jahat) membobol sistem tanpa izin. Perbuatan ini melanggar hukum (UU ITE).",
+	},
+	{
+		Question = "Cara menjaga password yang BENAR adalah …",
+		Correct = "Rahasiakan & ganti berkala",
+		Wrong = { "Tulis di papan kelas", "Sama untuk semua akun", "Bagikan ke teman" },
+		Explanation = "Jaga kerahasiaan password, gunakan password berbeda untuk tiap akun, dan ganti secara berkala.",
+	},
+}
+
 -- QuizBank.Stage3 = { ... } -- Cable Labyrinth
 -- QuizBank.Stage4 = { ... } -- Bandwidth Glider
 
