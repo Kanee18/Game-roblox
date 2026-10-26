@@ -20,6 +20,10 @@ Students meet in a lush fantasy lobby (Genshin Impact–style). The teacher open
 - [x] **Stage 3: Cable Labyrinth.** Motherboard maze: identify the device from its function, find it, and deliver it; 11 built-in 3D devices, 22 requests → [`docs/05-stage3-cable-labyrinth.md`](docs/05-stage3-cable-labyrinth.md)
 - [x] **Audio.** Area music slots with crossfade (a built-in music-box melody until you add tracks), sound effects for every event, a per-student 🔊 button, and a teacher music switch → [`docs/07-audio.md`](docs/07-audio.md)
 - [x] **Stage 4: Bandwidth Glider.** Glide through A/B wind rings; correct = ⚡ speed boost, wrong = 🐢 buffering; 20 questions → [`docs/06-stage4-bandwidth-glider.md`](docs/06-stage4-bandwidth-glider.md)
+- [x] **Phone-friendly UI.** On phones the UI switches to a compact layout automatically:
+  - collapsible stage panel at the top right, tap-to-close cards, and Stage 2 aim assist with color-matched answer chips
+  - world labels that shrink with distance
+  - see [`docs/08-mobile.md`](docs/08-mobile.md)
 
 ## Repository layout
 
@@ -39,6 +43,7 @@ docs/
   05-stage3-cable-labyrinth.md
   06-stage4-bandwidth-glider.md
   07-audio.md
+  08-mobile.md
 ```
 
 File suffix → Studio type: `*.server.luau` = Script, `*.client.luau` = LocalScript, `*.luau` = ModuleScript.
@@ -52,6 +57,7 @@ File suffix → Studio type: `*.server.luau` = Script, `*.client.luau` = LocalSc
 3. Press **Play**. The world builds itself automatically: lighting, lobby, 4 portals, Videotron, and all 4 stages (`ServerScriptService > World`). The template's `Baseplate`/`SpawnLocation` are removed, and players appear in the lobby.
 4. *(Optional)* To see and decorate the world in edit mode: press Stop, paste `tools/BuildWorld.luau` into **View → Command Bar**, press Enter, and save with **Ctrl+S**.
 5. Test with **Test → Local Server (2 players)**. Player1 is the teacher and Player2 is a student.
+6. To check the phone layout, use **Test → Device** and pick a phone in landscape (see `docs/08-mobile.md`).
 
 ## Running a class session
 

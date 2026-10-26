@@ -89,7 +89,7 @@ PointsService.AllReset:Connect(function() end)    -- teacher pressed "Reset Semu
 ```
 
 ### 3.2 Teacher Panel + portals: `AdminService`, `PortalService`, `AdminPanelClient`
-- The panel appears **only** for admins (button **🛠️ Panel Guru** on the left, or press **G**).
+- The panel appears **only** for admins (button **🛠️ Panel Guru** on the left, or press **G**). On a phone or tablet the button is labeled **🛠️ Guru** and the panel fills the screen height (scroll for more).
 - Panel features:
   - **Buka / Tutup** each of the 4 portals (Earth, Fire, Lightning, Wind). With `OnlyOneOpen = true`, opening one closes the others, so the teacher decides which game everyone plays.
   - **🔒 Tutup Semua Portal**

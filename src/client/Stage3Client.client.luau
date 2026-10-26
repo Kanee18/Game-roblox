@@ -5,7 +5,8 @@
 	Tampilan Tahap 3 · Cable Labyrinth untuk siswa ini:
 	  * Papan permintaan Mesin Pusat (hanya siswa ini yang melihat permintaannya)
 	  * Pajangan perangkat di pedestal berputar pelan
-	  * Panel bawah: permintaan, barang yang dibawa, progres misi
+	  * Panel: permintaan, barang yang dibawa, progres misi (PC: bawah; HP: kanan atas,
+	    bisa diciutkan)
 	  * Kartu hasil pengiriman dan kartu misi selesai
 ]]
 
@@ -43,6 +44,7 @@ local feedbackRemote = Remotes.Get("Stage3Feedback")
 local completeRemote = Remotes.Get("Stage3Complete")
 
 local currentState = nil
+local lastRequest: string? = nil
 
 --------------------------------------------------------------------------------
 -- Papan permintaan di atas Mesin Pusat
@@ -53,7 +55,8 @@ machineFocus = machineFocus or machine:FindFirstChildWhichIsA("BasePart", true)
 local requestBoard = UiKit.new("BillboardGui", {
 	Name = "PermintaanMesin",
 	Adornee = machineFocus,
-	Size = UDim2.fromOffset(460, 170),
+	-- Ukuran campuran (stud + piksel): tidak memenuhi layar HP saat berdiri di dekat mesin.
+	Size = UDim2.new(16, 110, 6, 40),
 	StudsOffsetWorldSpace = Vector3.new(0, 12, 0),
 	LightInfluence = 0,
 	MaxDistance = 400,
@@ -92,51 +95,13 @@ local gui = UiKit.new("ScreenGui", {
 	Parent = player:WaitForChild("PlayerGui"),
 })
 
-local panel = UiKit.new("Frame", {
-	Name = "PanelMisi",
-	AnchorPoint = Vector2.new(0.5, 1),
-	Position = UDim2.new(0.5, 0, 1, -12),
-	Size = UDim2.new(0.55, 0, 0, 0),
-	AutomaticSize = Enum.AutomaticSize.Y,
-	BackgroundColor3 = Theme.Night,
-	BackgroundTransparency = 0.15,
-	Visible = false,
-	Parent = gui,
-}, {
-	UiKit.corner(16),
-	UiKit.stroke(STAGE.Color, 2),
-	UiKit.padding(12),
-	UiKit.new("UISizeConstraint", { MinSize = Vector2.new(320, 0), MaxSize = Vector2.new(680, math.huge) }),
-	UiKit.new("UIListLayout", { Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder }),
-})
-local panelHeader = UiKit.label({
-	Size = UDim2.new(1, 0, 0, 22),
-	TextSize = 18,
-	TextColor3 = STAGE.Color,
-	TextXAlignment = Enum.TextXAlignment.Left,
-	TextWrapped = false,
-	TextTruncate = Enum.TextTruncate.AtEnd,
-	LayoutOrder = 1,
-	Parent = panel,
-})
-local panelRequest = UiKit.label({
-	Size = UDim2.new(1, 0, 0, 0),
-	AutomaticSize = Enum.AutomaticSize.Y,
-	Font = Theme.FontBold,
-	TextSize = 18,
-	TextXAlignment = Enum.TextXAlignment.Left,
-	LayoutOrder = 2,
-	Parent = panel,
-})
-local panelCarrying = UiKit.label({
-	Size = UDim2.new(1, 0, 0, 0),
-	AutomaticSize = Enum.AutomaticSize.Y,
+local hud = UiKit.hudPanel(gui, STAGE.Color)
+local panelHeader = hud.Header
+local panelRequest = hud.Line(1, { Font = Theme.FontBold })
+local panelCarrying = hud.Line(2, {
 	Font = Theme.FontBody,
 	TextSize = 16,
 	TextColor3 = Theme.GoldBright,
-	TextXAlignment = Enum.TextXAlignment.Left,
-	LayoutOrder = 3,
-	Parent = panel,
 })
 
 local resultCard = UiKit.card(gui, "HasilPengiriman")
@@ -161,7 +126,7 @@ missionCard.Line(5, {
 local function render()
 	local inStage = player:GetAttribute("CurrentStage") == STAGE_ID
 	local state = currentState
-	panel.Visible = inStage and state ~= nil
+	hud.Frame.Visible = inStage and state ~= nil
 	requestBoard.Enabled = inStage
 
 	if not state then
@@ -170,15 +135,28 @@ local function render()
 	end
 	local request = state.Request or "Semua permintaan sudah habis. Hebat!"
 	requestText.Text = request
+	if request ~= lastRequest then
+		lastRequest = request
+		hud.Expand() -- permintaan baru: buka lagi panel yang diciutkan
+	end
 
+	local compact = UiKit.IsCompact()
 	local progress = if state.Correct >= state.Goal
 		then `Misi {state.Goal}/{state.Goal} ✅`
 		else `Misi {state.Correct}/{state.Goal}`
-	panelHeader.Text = `{STAGE.ElementIcon} CABLE LABYRINTH · {progress}`
+	panelHeader.Text = if compact
+		then `{STAGE.ElementIcon} {progress}`
+		else `{STAGE.ElementIcon} CABLE LABYRINTH · {progress}`
 	panelRequest.Text = `🖥️ {request}`
-	panelCarrying.Text = if state.Carrying
-		then `🎒 Kamu membawa: {state.Carrying}. Antar ke lantai bercahaya di sekeliling Mesin Pusat!`
-		else "🎒 Tanganmu kosong. Cari perangkatnya di labirin (lihat papan nama yang melayang)!"
+	if compact then
+		panelCarrying.Text = if state.Carrying
+			then `🎒 Membawa: {state.Carrying} → antar ke Mesin Pusat!`
+			else "🎒 Tangan kosong. Cari perangkatnya di labirin!"
+	else
+		panelCarrying.Text = if state.Carrying
+			then `🎒 Kamu membawa: {state.Carrying}. Antar ke lantai bercahaya di sekeliling Mesin Pusat!`
+			else "🎒 Tanganmu kosong. Cari perangkatnya di labirin (lihat papan nama yang melayang)!"
+	end
 end
 
 --------------------------------------------------------------------------------
@@ -265,4 +243,6 @@ player:GetAttributeChangedSignal("CurrentStage"):Connect(function()
 	render()
 end)
 
-render()
+UiKit.OnLayout(function()
+	render()
+end)

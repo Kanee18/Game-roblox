@@ -10,7 +10,8 @@
 	  * Buka/Tutup 4 portal elemen
 	  * Tutup semua portal, panggil semua siswa ke Lobby, reset semua Poin
 	  * Kirim pengumuman ke semua siswa
-	Tombol "🛠️ Panel Guru" di kiri layar, atau tekan G.
+	Tombol "🛠️ Panel Guru" di kiri layar, atau tekan G. Di HP/tablet tombolnya
+	lebih ringkas ("🛠️ Guru") dan panel memakai seluruh tinggi layar (bisa digulir).
 ]]
 
 local Players = game:GetService("Players")
@@ -44,19 +45,13 @@ local function buildPanel()
 	local toggleButton = UiKit.button({
 		Name = "TombolPanel",
 		AnchorPoint = Vector2.new(0, 0.5),
-		Position = UDim2.new(0, 12, 0.5, 0),
-		Size = UDim2.fromOffset(160, 48),
 		BackgroundColor3 = Theme.Cream,
-		Text = "🛠️ Panel Guru",
-		TextSize = 20,
 		Parent = gui,
 	}, { UiKit.stroke(Theme.Gold, 2) })
 
 	local panel = UiKit.new("Frame", {
 		Name = "Panel",
 		AnchorPoint = Vector2.new(0, 0.5),
-		Position = UDim2.new(0, 184, 0.5, 0),
-		Size = UDim2.new(0, 440, 0.85, 0),
 		BackgroundColor3 = Theme.Cream,
 		Visible = false,
 		Parent = gui,
@@ -76,7 +71,7 @@ local function buildPanel()
 		TextXAlignment = Enum.TextXAlignment.Left,
 		Parent = panel,
 	})
-	UiKit.label({
+	local subtitle = UiKit.label({
 		Text = "Kontrol portal & kelas · tekan G untuk buka/tutup",
 		Position = UDim2.fromOffset(20, 46),
 		Size = UDim2.new(1, -80, 0, 18),
@@ -328,10 +323,36 @@ local function buildPanel()
 	----------------------------------------------------------------------------
 	-- Buka / tutup panel
 	----------------------------------------------------------------------------
+	local compact = false
+
 	local function setVisible(visible: boolean)
 		panel.Visible = visible
-		toggleButton.Text = if visible then "✖ Tutup Panel" else "🛠️ Panel Guru"
+		if compact then
+			toggleButton.Text = if visible then "✖ Tutup" else "🛠️ Guru"
+		else
+			toggleButton.Text = if visible then "✖ Tutup Panel" else "🛠️ Panel Guru"
+		end
 	end
+
+	UiKit.OnLayout(function(isCompact)
+		compact = isCompact
+		if isCompact then
+			toggleButton.Position = UDim2.new(0, 8, 0.5, 0)
+			toggleButton.Size = UDim2.fromOffset(110, 44)
+			toggleButton.TextSize = 17
+			panel.Position = UDim2.new(0, 124, 0.5, 0)
+			panel.Size = UDim2.new(0, 400, 1, -16)
+			subtitle.Text = "Kontrol portal & kelas · geser ke bawah untuk menu lain"
+		else
+			toggleButton.Position = UDim2.new(0, 12, 0.5, 0)
+			toggleButton.Size = UDim2.fromOffset(160, 48)
+			toggleButton.TextSize = 20
+			panel.Position = UDim2.new(0, 184, 0.5, 0)
+			panel.Size = UDim2.new(0, 440, 0.85, 0)
+			subtitle.Text = "Kontrol portal & kelas · tekan G untuk buka/tutup"
+		end
+		setVisible(panel.Visible)
+	end)
 
 	toggleButton.Activated:Connect(function()
 		Sfx.Play("Click")

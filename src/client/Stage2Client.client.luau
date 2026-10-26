@@ -3,12 +3,15 @@
 	Lokasi: StarterPlayer > StarterPlayerScripts > Stage2Client
 
 	Tampilan Tahap 2 · Firewall Defender untuk siswa ini:
-	  * Menembak dengan Tongkat Firewall (klik/ketuk virus), efek bola api
-	  * Panel bawah: gelombang, nyawa Inti Server, soal, dan status jawabanmu
+	  * Menembak dengan Tongkat Firewall (klik/ketuk virus), efek bola api.
+	    Bantuan membidik: ketukan di dekat virus atau labelnya tetap kena (penting di HP).
+	  * Panel: gelombang, nyawa Inti Server, soal, pilihan jawaban berwarna sama dengan
+	    virusnya, dan status jawabanmu (PC: bawah; HP: kanan atas, bisa diciutkan)
 	  * Kartu hasil tembakanmu (hanya kamu yang melihat) dan kartu pengumuman jawaban
 ]]
 
 local Debris = game:GetService("Debris")
+local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -79,53 +82,100 @@ local gui = UiKit.new("ScreenGui", {
 	Parent = player:WaitForChild("PlayerGui"),
 })
 
-local panel = UiKit.new("Frame", {
-	Name = "PanelGelombang",
-	AnchorPoint = Vector2.new(0.5, 1),
-	Position = UDim2.new(0.5, 0, 1, -12),
-	Size = UDim2.new(0.55, 0, 0, 0),
-	AutomaticSize = Enum.AutomaticSize.Y,
-	BackgroundColor3 = Theme.Night,
-	BackgroundTransparency = 0.15,
-	Visible = false,
-	Parent = gui,
-}, {
-	UiKit.corner(16),
-	UiKit.stroke(STAGE.Color, 2),
-	UiKit.padding(12),
-	UiKit.new("UISizeConstraint", { MinSize = Vector2.new(320, 0), MaxSize = Vector2.new(680, math.huge) }),
-	UiKit.new("UIListLayout", { Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder }),
-})
+local hud = UiKit.hudPanel(gui, STAGE.Color)
+hud.Frame.Active = true -- ketukan pada panel tidak ikut menembak
+local panelHeader = hud.Header
+local panelQuestion = hud.Line(1, { Font = Theme.FontBold })
 
-local panelHeader = UiKit.label({
-	Size = UDim2.new(1, 0, 0, 22),
-	TextSize = 18,
-	TextColor3 = STAGE.Color,
-	TextXAlignment = Enum.TextXAlignment.Left,
-	TextWrapped = false,
-	TextTruncate = Enum.TextTruncate.AtEnd,
-	LayoutOrder = 1,
-	Parent = panel,
+-- Pilihan jawaban, warnanya sama dengan virus pembawanya.
+local chipGrid = UiKit.new("UIGridLayout", {
+	CellPadding = UDim2.fromOffset(6, 6),
+	SortOrder = Enum.SortOrder.LayoutOrder,
 })
-local panelQuestion = UiKit.label({
+local chipRow = UiKit.new("Frame", {
 	Size = UDim2.new(1, 0, 0, 0),
 	AutomaticSize = Enum.AutomaticSize.Y,
-	Font = Theme.FontBold,
-	TextSize = 18,
-	TextXAlignment = Enum.TextXAlignment.Left,
+	BackgroundTransparency = 1,
 	LayoutOrder = 2,
-	Parent = panel,
-})
-local panelStatus = UiKit.label({
-	Size = UDim2.new(1, 0, 0, 0),
-	AutomaticSize = Enum.AutomaticSize.Y,
+	Parent = hud.Body,
+}, { chipGrid })
+local chipsKey = ""
+
+local panelStatus = hud.Line(3, {
 	Font = Theme.FontBody,
 	TextSize = 16,
 	TextColor3 = Theme.GoldBright,
-	TextXAlignment = Enum.TextXAlignment.Left,
-	LayoutOrder = 3,
-	Parent = panel,
 })
+
+local function decodeOptions(): { { Answer: string, Color: string } }
+	local raw = getState("Options", "")
+	if raw == "" then
+		return {}
+	end
+	local ok, list = pcall(HttpService.JSONDecode, HttpService, raw)
+	return if ok and typeof(list) == "table" then list else {}
+end
+
+local function renderChips(phase: string)
+	local options = if phase == "Question" or phase == "Reveal" then decodeOptions() else {}
+	local revealAnswer = if phase == "Reveal" then getState("RevealAnswer", "") else nil
+	local key = `{getState("Options", "")}|{revealAnswer or ""}|{UiKit.IsCompact()}|{#options}`
+	if key == chipsKey then
+		return
+	end
+	chipsKey = key
+	for _, child in chipRow:GetChildren() do
+		if child:IsA("GuiObject") then
+			child:Destroy()
+		end
+	end
+	chipRow.Visible = #options > 0
+	-- HP: 2 kolom (teks tetap besar). PC: semua pilihan dalam satu baris.
+	local columns = if UiKit.IsCompact() then 2 else math.max(#options, 1)
+	chipGrid.CellSize = UDim2.new(1 / columns, -6 * (columns - 1) / columns, 0, 34)
+	for index, option in options do
+		local ok, color = pcall(Color3.fromHex, option.Color)
+		color = if ok then color else STAGE.Color
+		local text = option.Answer
+		local background = color:Lerp(Theme.Night, 0.3)
+		local transparency = 0
+		if revealAnswer then
+			if option.Answer == revealAnswer then
+				text = `✅ {text}`
+				background = Theme.Success
+			else
+				transparency = 0.6
+			end
+		end
+		local chip = UiKit.new("Frame", {
+			BackgroundTransparency = transparency,
+			BackgroundColor3 = background,
+			LayoutOrder = index,
+			Parent = chipRow,
+		}, {
+			UiKit.corner(8),
+			UiKit.stroke(Theme.Cream, 1, transparency),
+			UiKit.new("UIPadding", {
+				PaddingLeft = UDim.new(0, 6),
+				PaddingRight = UDim.new(0, 6),
+				PaddingTop = UDim.new(0, 3),
+				PaddingBottom = UDim.new(0, 3),
+			}),
+		})
+		UiKit.label({
+			Size = UDim2.fromScale(1, 1),
+			Text = text,
+			Font = Theme.FontBold,
+			TextScaled = true,
+			TextColor3 = Theme.White,
+			TextTransparency = transparency * 0.5,
+			Parent = chip,
+		}, {
+			UiKit.new("UITextSizeConstraint", { MaxTextSize = 17 }),
+			UiKit.textStroke(Theme.Night, 1),
+		})
+	end
+end
 
 -- Pesan singkat di atas panel ("Tunggu gelombang berikutnya!", dll)
 local hintLabel = UiKit.label({
@@ -173,21 +223,29 @@ local revealCore = revealCard.Line(5, { TextSize = 22 })
 
 local function renderHud()
 	local inStage = player:GetAttribute("CurrentStage") == STAGE_ID
-	panel.Visible = inStage
+	hud.Frame.Visible = inStage
 	if not inStage then
 		return
 	end
 
+	local compact = UiKit.IsCompact()
 	local phase = getState("Phase", "Idle")
 	local wave = getState("Wave", 0)
-	panelHeader.Text = `{STAGE.ElementIcon} FIREWALL DEFENDER · Gelombang {wave} · 🛡️ {heartsText(getState("CoreHP", CONFIG.CoreMaxHP))}`
+	local hearts = heartsText(getState("CoreHP", CONFIG.CoreMaxHP))
+	panelHeader.Text = if compact
+		then `{STAGE.ElementIcon} Gelombang {wave} · 🛡️ {hearts}`
+		else `{STAGE.ElementIcon} FIREWALL DEFENDER · Gelombang {wave} · 🛡️ {hearts}`
+	renderChips(phase)
 
 	if phase == "Question" then
 		panelQuestion.Text = getState("Question", "")
 		local progress = `Sudah menjawab: {getState("Answered", 0)}/{getState("Required", 0)}`
+		local instruction = if UiKit.IsTouch()
+			then "🎯 Ketuk virus (atau labelnya) yang membawa jawaban BENAR."
+			else "🎯 Klik virus pembawa jawaban BENAR."
 		panelStatus.Text = if isLocked()
 			then `🔒 Jawabanmu: {myResult.Answer} · tunggu hasilnya… ({progress})`
-			else `🎯 Klik/ketuk virus pembawa jawaban BENAR. Virus pertama yang kena = jawabanmu! ({progress})`
+			else `{instruction} Virus pertama yang kena = jawabanmu! ({progress})`
 	elseif phase == "Reveal" then
 		panelQuestion.Text = getState("Question", "")
 		panelStatus.Text = `✅ Jawaban benar: {getState("RevealAnswer", "")}`
@@ -249,12 +307,46 @@ end
 --------------------------------------------------------------------------------
 -- Menembak
 --------------------------------------------------------------------------------
+-- Bantuan membidik: virus terdekat dari arah ketukan/klik, diukur dari badan virus
+-- maupun label jawabannya. Di HP jari menutupi sasaran yang kecil dan bergerak.
+local function findAssistTarget(ray: Ray): BasePart?
+	local camera = workspace.CurrentCamera
+	if not camera then
+		return nil
+	end
+	local radiusPixels = if UiKit.IsTouch() then CONFIG.AimAssistTouch else CONFIG.AimAssistMouse
+	local pixelsPerRadian = camera.ViewportSize.Y / math.rad(camera.FieldOfView)
+	local bestAngle = radiusPixels / pixelsPerRadian
+	local best: BasePart? = nil
+	for _, model in monstersFolder:GetChildren() do
+		local root = if model:IsA("Model") then model.PrimaryPart else nil
+		if root then
+			for _, point in { root.Position, root.Position + Vector3.new(0, CONFIG.LabelHeight, 0) } do
+				local toPoint = point - ray.Origin
+				local distance = toPoint.Magnitude
+				if distance > 1 and distance <= CONFIG.MaxRange then
+					local angle = math.acos(math.clamp(toPoint.Unit:Dot(ray.Direction), -1, 1))
+					if angle < bestAngle then
+						bestAngle = angle
+						best = root
+					end
+				end
+			end
+		end
+	end
+	return best
+end
+
 -- Titik yang dibidik + apakah bidikan mengenai virus.
 local function getAim(): (Vector3, boolean)
 	local ray = mouse.UnitRay
 	local result = workspace:Raycast(ray.Origin, ray.Direction * CONFIG.MaxRange, aimParams)
 	if result then
 		return result.Position, true
+	end
+	local assisted = findAssistTarget(ray)
+	if assisted then
+		return assisted.Position, true
 	end
 	return ray.Origin + ray.Direction * CONFIG.MaxRange, false
 end
@@ -376,6 +468,7 @@ stateFolder.AttributeChanged:Connect(function(name)
 			showReveal()
 		elseif phase == "Question" then
 			revealCard.Hide()
+			hud.Expand() -- soal baru: buka lagi panel yang diciutkan
 		end
 	end
 	renderHud()
@@ -393,10 +486,12 @@ end)
 task.spawn(function()
 	while true do
 		task.wait(0.25)
-		if panel.Visible and getState("Phase", "Idle") == "Intermission" then
+		if hud.Frame.Visible and getState("Phase", "Idle") == "Intermission" then
 			renderHud()
 		end
 	end
 end)
 
-renderHud()
+UiKit.OnLayout(function()
+	renderHud()
+end)

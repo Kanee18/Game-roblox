@@ -19,6 +19,7 @@
 	Kunci jawaban hanya ada di server. Model virus tidak menyimpan tanda benar/salah.
 ]]
 
+local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -284,7 +285,8 @@ local function buildCoreLabel(part: BasePart)
 	local billboard = UiKit.new("BillboardGui", {
 		Name = "CoreLabel",
 		Adornee = part,
-		Size = UDim2.fromOffset(260, 80),
+		-- Ukuran campuran (stud + piksel): ikut mengecil di kejauhan, tetap terbaca di HP.
+		Size = UDim2.new(12, 80, 3.5, 24),
 		StudsOffsetWorldSpace = Vector3.new(0, 8, 0),
 		LightInfluence = 0,
 		MaxDistance = 200,
@@ -498,38 +500,48 @@ local function makeAnswerLabel(root: BasePart, answer: string, color: Color3): (
 	local billboard = UiKit.new("BillboardGui", {
 		Name = "AnswerLabel",
 		Adornee = root,
-		Size = UDim2.fromOffset(240, 66),
-		StudsOffsetWorldSpace = Vector3.new(0, 7, 0),
+		-- Ukuran campuran (stud + piksel): label virus yang jauh ikut mengecil sehingga
+		-- tidak saling menumpuk di layar HP, tapi tidak pernah lebih kecil dari 40x14 piksel.
+		Size = UDim2.new(10, 40, 2.5, 14),
+		StudsOffsetWorldSpace = Vector3.new(0, CONFIG.LabelHeight, 0),
 		AlwaysOnTop = true,
 		LightInfluence = 0,
 		MaxDistance = 400,
 		Parent = root,
 	})
+	-- Latar label berwarna sama dengan virusnya (dan dengan kotak jawaban di panel layar).
 	local card = UiKit.new("Frame", {
 		Size = UDim2.fromScale(1, 1),
-		BackgroundColor3 = Theme.Cream,
+		BackgroundColor3 = color:Lerp(Theme.Night, 0.3),
 		Parent = billboard,
-	}, { UiKit.corner(14), UiKit.stroke(color, 3) })
+	}, { UiKit.corner(UDim.new(0.25, 0)), UiKit.stroke(Theme.Cream, 2) })
 	local label = UiKit.label({
 		Size = UDim2.fromScale(1, 1),
 		Text = answer,
 		Font = Theme.FontBold,
 		TextScaled = true,
-		TextColor3 = Theme.Ink,
+		TextColor3 = Theme.White,
 		Parent = card,
-	}, { UiKit.padding(6) })
+	}, {
+		UiKit.new("UIPadding", {
+			PaddingLeft = UDim.new(0.04, 0),
+			PaddingRight = UDim.new(0.04, 0),
+			PaddingTop = UDim.new(0.1, 0),
+			PaddingBottom = UDim.new(0.1, 0),
+		}),
+		UiKit.textStroke(Theme.Night, 1),
+	})
 	return card, label
 end
 
-local function spawnMonster(path: { Vector3 }, answer: string, isCorrect: boolean, speed: number)
+-- color: warna virus. Diacak tiap gelombang dan TIDAK berhubungan dengan benar/salah.
+local function spawnMonster(path: { Vector3 }, answer: string, isCorrect: boolean, speed: number, color: Color3)
 	if not (monsterTemplate and monstersFolder) then
 		return
 	end
 	local model = monsterTemplate:Clone()
 	local root = model.PrimaryPart :: BasePart
 
-	-- Warna acak, TIDAK berhubungan dengan benar/salah.
-	local color = VIRUS_COLORS[random:NextInteger(1, #VIRUS_COLORS)]
 	for _, part in model:GetDescendants() do
 		if part:IsA("BasePart") then
 			if part.Name == "Body" or part.Name == "Spike" then
@@ -811,7 +823,16 @@ local function runWave(question: Question)
 	local laneOrder = shuffled(lanes)
 	local speed = math.min(CONFIG.MonsterSpeed + CONFIG.SpeedPerWave * (round.Wave - 1), CONFIG.MaxMonsterSpeed)
 
+	-- Setiap virus berwarna beda. Daftar jawaban + warnanya ditampilkan di panel layar
+	-- (memudahkan siswa di HP mencocokkan label kecil dengan jawabannya).
+	local colors = shuffled(VIRUS_COLORS)
+	local optionList = {}
+	for index, option in options do
+		table.insert(optionList, { Answer = option, Color = colors[(index - 1) % #colors + 1]:ToHex() })
+	end
+
 	stateFolder:SetAttribute("Wave", round.Wave)
+	stateFolder:SetAttribute("Options", HttpService:JSONEncode(optionList))
 	stateFolder:SetAttribute("Question", question.Question)
 	stateFolder:SetAttribute("Answered", 0)
 	stateFolder:SetAttribute("Required", #requiredPlayers())
@@ -821,7 +842,8 @@ local function runWave(question: Question)
 		local delay = if index == 1 then 0 else random:NextNumber(0, CONFIG.SpawnStagger)
 		task.delay(delay, function()
 			if round.Token == token and round.Active then
-				spawnMonster(laneOrder[index], option, option == question.Correct, speed)
+				local color = colors[(index - 1) % #colors + 1]
+				spawnMonster(laneOrder[index], option, option == question.Correct, speed, color)
 			end
 		end)
 	end
@@ -847,6 +869,7 @@ local function gameLoop()
 	stateFolder:SetAttribute("CoreMax", CONFIG.CoreMaxHP)
 
 	while #playersInStage() > 0 do
+		stateFolder:SetAttribute("Options", "")
 		setPhase("Intermission", CONFIG.IntermissionTime)
 		task.wait(CONFIG.IntermissionTime)
 		if #playersInStage() == 0 then

@@ -500,10 +500,12 @@ local function setupStation(station: BasePart)
 	local billboard = UiKit.new("BillboardGui", {
 		Name = "ItemLabel",
 		Adornee = station,
-		Size = UDim2.fromOffset(190, 46),
+		-- Ukuran campuran (stud + piksel): papan nama yang jauh ikut mengecil sehingga
+		-- tidak saling menumpuk di layar HP.
+		Size = UDim2.new(6, 60, 1.5, 16),
 		StudsOffsetWorldSpace = Vector3.new(0, 15, 0),
 		LightInfluence = 0,
-		MaxDistance = 260,
+		MaxDistance = 200,
 		Parent = station,
 	})
 	UiKit.label({
@@ -513,7 +515,16 @@ local function setupStation(station: BasePart)
 		Text = `{item.Icon} {item.Name}`,
 		TextScaled = true,
 		Parent = billboard,
-	}, { UiKit.corner(12), UiKit.stroke(item.Color, 2), UiKit.padding(6) })
+	}, {
+		UiKit.corner(UDim.new(0.25, 0)),
+		UiKit.stroke(item.Color, 2),
+		UiKit.new("UIPadding", {
+			PaddingLeft = UDim.new(0.04, 0),
+			PaddingRight = UDim.new(0.04, 0),
+			PaddingTop = UDim.new(0.1, 0),
+			PaddingBottom = UDim.new(0.1, 0),
+		}),
+	})
 
 	station.Touched:Connect(function(hit)
 		onStationTouched(item.Id, hit)

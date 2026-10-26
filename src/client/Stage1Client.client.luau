@@ -4,7 +4,7 @@
 
 	Tampilan Tahap 1 · Routing Runner untuk siswa ini saja:
 	  * Papan soal & papan pintu A/B/C di dunia (setiap siswa melihat soalnya sendiri)
-	  * Panel soal di bawah layar
+	  * Panel soal di bawah layar (di HP: kanan atas, bisa diciutkan)
 	  * Kartu hasil: Benar/Salah + jawaban benar + penjelasan
 	  * Kartu finish berisi rekap jawaban
 ]]
@@ -190,70 +190,36 @@ local gui = UiKit.new("ScreenGui", {
 	Parent = player:WaitForChild("PlayerGui"),
 })
 
--- Panel soal (bawah tengah)
-local questionPanel = UiKit.new("Frame", {
-	Name = "PanelSoal",
-	AnchorPoint = Vector2.new(0.5, 1),
-	Position = UDim2.new(0.5, 0, 1, -12),
-	Size = UDim2.new(0.55, 0, 0, 0),
-	AutomaticSize = Enum.AutomaticSize.Y,
-	BackgroundColor3 = Theme.Night,
-	BackgroundTransparency = 0.15,
-	Visible = false,
-	Parent = gui,
-}, {
-	UiKit.corner(16),
-	UiKit.stroke(STAGE.Color, 2),
-	UiKit.padding(12),
-	UiKit.new("UISizeConstraint", { MinSize = Vector2.new(320, 0), MaxSize = Vector2.new(680, math.huge) }),
-	UiKit.new("UIListLayout", { Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder }),
-})
+-- Panel soal (PC: bawah tengah; HP: kanan atas, ketuk judul untuk menciutkan)
+local hud = UiKit.hudPanel(gui, STAGE.Color)
+local panelHeader = hud.Header
+local panelQuestion = hud.Line(1, { Font = Theme.FontBold })
 
-local panelHeader = UiKit.label({
-	Size = UDim2.new(1, 0, 0, 22),
-	TextSize = 18,
-	TextColor3 = STAGE.Color,
-	TextXAlignment = Enum.TextXAlignment.Left,
-	TextWrapped = false,
-	TextTruncate = Enum.TextTruncate.AtEnd,
-	LayoutOrder = 1,
-	Parent = questionPanel,
+local optionLayout = UiKit.new("UIListLayout", {
+	HorizontalAlignment = Enum.HorizontalAlignment.Center,
+	SortOrder = Enum.SortOrder.LayoutOrder,
 })
-
-local panelQuestion = UiKit.label({
+local optionRow = UiKit.new("Frame", {
 	Size = UDim2.new(1, 0, 0, 0),
 	AutomaticSize = Enum.AutomaticSize.Y,
-	Font = Theme.FontBold,
-	TextSize = 18,
-	TextXAlignment = Enum.TextXAlignment.Left,
-	LayoutOrder = 2,
-	Parent = questionPanel,
-})
-
-local optionRow = UiKit.new("Frame", {
-	Size = UDim2.new(1, 0, 0, 40),
 	BackgroundTransparency = 1,
-	LayoutOrder = 3,
-	Parent = questionPanel,
-}, {
-	UiKit.new("UIListLayout", {
-		FillDirection = Enum.FillDirection.Horizontal,
-		HorizontalAlignment = Enum.HorizontalAlignment.Center,
-		Padding = UDim.new(0, 8),
-		SortOrder = Enum.SortOrder.LayoutOrder,
-	}),
-})
+	LayoutOrder = 2,
+	Parent = hud.Body,
+}, { optionLayout })
 
 local function renderHud()
 	local state = currentState
 	local inStage = player:GetAttribute("CurrentStage") == STAGE_ID
 	local hasQuestion = state ~= nil and state.Question ~= nil
-	questionPanel.Visible = inStage and hasQuestion
+	hud.Frame.Visible = inStage and hasQuestion
 	if not hasQuestion then
 		return
 	end
 
-	panelHeader.Text = `{STAGE.ElementIcon} ROUTING RUNNER · Gerbang Router {state.Section}/{state.Total}`
+	local compact = UiKit.IsCompact()
+	panelHeader.Text = if compact
+		then `{STAGE.ElementIcon} Gerbang Router {state.Section}/{state.Total}`
+		else `{STAGE.ElementIcon} ROUTING RUNNER · Gerbang Router {state.Section}/{state.Total}`
 	panelQuestion.Text = state.Question
 
 	for _, child in optionRow:GetChildren() do
@@ -261,25 +227,50 @@ local function renderHud()
 			child:Destroy()
 		end
 	end
+	-- PC: pilihan berjajar ke samping. HP: tersusun ke bawah supaya teksnya tidak mengecil.
+	optionLayout.FillDirection = if compact then Enum.FillDirection.Vertical else Enum.FillDirection.Horizontal
+	optionLayout.Padding = UDim.new(0, if compact then 4 else 8)
 	local count = #state.Options
 	for slot, option in state.Options do
-		UiKit.label({
-			Size = UDim2.new(1 / count, -8 * (count - 1) / count, 1, 0),
-			BackgroundTransparency = 0,
-			BackgroundColor3 = Theme.Cream,
-			Text = `{Stage1Map.Letter(slot)} · {option}`,
-			Font = Theme.FontBold,
-			TextScaled = true,
-			TextColor3 = Theme.Ink,
-			LayoutOrder = slot,
-			Parent = optionRow,
-		}, {
-			UiKit.corner(10),
-			UiKit.padding(6),
-			UiKit.new("UITextSizeConstraint", { MaxTextSize = 18 }),
-		})
+		local text = `{Stage1Map.Letter(slot)} · {option}`
+		if compact then
+			UiKit.label({
+				Size = UDim2.new(1, 0, 0, 0),
+				AutomaticSize = Enum.AutomaticSize.Y,
+				BackgroundTransparency = 0,
+				BackgroundColor3 = Theme.Cream,
+				Text = text,
+				Font = Theme.FontBold,
+				TextSize = 16,
+				TextColor3 = Theme.Ink,
+				TextXAlignment = Enum.TextXAlignment.Left,
+				LayoutOrder = slot,
+				Parent = optionRow,
+			}, { UiKit.corner(8), UiKit.padding(5) })
+		else
+			UiKit.label({
+				Size = UDim2.new(1 / count, -8 * (count - 1) / count, 0, 40),
+				BackgroundTransparency = 0,
+				BackgroundColor3 = Theme.Cream,
+				Text = text,
+				Font = Theme.FontBold,
+				TextScaled = true,
+				TextColor3 = Theme.Ink,
+				LayoutOrder = slot,
+				Parent = optionRow,
+			}, {
+				UiKit.corner(10),
+				UiKit.padding(6),
+				UiKit.new("UITextSizeConstraint", { MaxTextSize = 18 }),
+			})
+		end
 	end
 end
+
+-- Susun ulang pilihan saat layar berganti mode (HP diputar, jendela diubah ukurannya).
+UiKit.OnLayout(function()
+	renderHud()
+end)
 
 local feedbackCard = UiKit.card(gui, "HasilJawaban")
 local feedbackTitle = feedbackCard.Line(1, { TextSize = 34 })
@@ -338,6 +329,7 @@ end
 --------------------------------------------------------------------------------
 Remotes.Get("Stage1Question").OnClientEvent:Connect(function(state)
 	currentState = state
+	hud.Expand() -- soal baru: buka lagi panel yang diciutkan
 	renderWorld()
 	renderHud()
 end)

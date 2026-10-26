@@ -3,12 +3,13 @@
 	Lokasi: StarterPlayer > StarterPlayerScripts > HudClient
 
 	Menampilkan di layar setiap pemain:
-	  * Jumlah Poin (atas tengah)
+	  * Jumlah Poin (atas tengah; di HP: kiri atas)
 	  * Animasi "+10 Poin · Jawaban benar!"
-	  * Notifikasi kecil (portal dibuka, dll)
-	  * Pengumuman besar dari Guru
+	  * Notifikasi kecil (portal dibuka, dll; di HP: bawah tengah)
+	  * Pengumuman besar dari Guru (ketuk untuk menutup)
 ]]
 
+local Lighting = game:GetService("Lighting")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -20,7 +21,6 @@ local Sfx = require(Shared:WaitForChild("Sfx"))
 
 local Theme = GameConfig.Theme
 local TOAST_DURATION = 4
-local MAX_TOASTS = 4
 local ANNOUNCEMENT_DURATION = 9
 
 local KIND_COLORS = {
@@ -31,6 +31,7 @@ local KIND_COLORS = {
 }
 
 local player = Players.LocalPlayer
+local compact = false -- diatur oleh UiKit.OnLayout di bagian bawah
 
 local gui = UiKit.new("ScreenGui", {
 	Name = "HUD",
@@ -60,10 +61,13 @@ local pillScale = UiKit.new("UIScale", { Parent = pointsPill })
 local pointsLabel = UiKit.label({
 	Size = UDim2.fromScale(1, 1),
 	Text = "⭐ 0 Poin",
-	TextSize = 28,
+	TextScaled = true,
 	TextColor3 = Theme.GoldBright,
 	TextWrapped = false,
 	Parent = pointsPill,
+}, {
+	UiKit.new("UIPadding", { PaddingLeft = UDim.new(0, 12), PaddingRight = UDim.new(0, 12) }),
+	UiKit.new("UITextSizeConstraint", { MaxTextSize = 28 }),
 })
 
 local function pulse(scale: UIScale)
@@ -97,24 +101,26 @@ local function showPointsPopup(delta: number, reason: string?)
 	Sfx.Play(if delta > 0 then "Correct" else "Wrong")
 	local color = if delta > 0 then Theme.Success elseif delta < 0 then Theme.Danger else Theme.Cream
 
+	-- Di HP sedikit lebih rendah (panel tahap ada di kanan atas) dan lebih kecil.
+	local y = if compact then 0.45 else 0.36
 	local stroke = UiKit.textStroke(Theme.Night, 3)
 	local popup = UiKit.label({
 		AnchorPoint = Vector2.new(0.5, 0.5),
-		Position = UDim2.fromScale(0.5, 0.36),
-		Size = UDim2.new(0.9, 0, 0, 60),
+		Position = UDim2.fromScale(0.5, y),
+		Size = UDim2.new(0.9, 0, 0, if compact then 44 else 60),
 		Text = text,
 		TextScaled = true,
 		TextColor3 = color,
 		Parent = gui,
 	}, {
 		stroke,
-		UiKit.new("UITextSizeConstraint", { MaxTextSize = 40 }),
+		UiKit.new("UITextSizeConstraint", { MaxTextSize = if compact then 30 else 40 }),
 	})
 	local scale = UiKit.new("UIScale", { Scale = 0.6, Parent = popup })
 	UiKit.tween(scale, 0.3, { Scale = 1 }, Enum.EasingStyle.Back)
 
 	task.delay(1, function()
-		UiKit.tween(popup, 0.8, { Position = UDim2.fromScale(0.5, 0.28), TextTransparency = 1 })
+		UiKit.tween(popup, 0.8, { Position = UDim2.fromScale(0.5, y - 0.08), TextTransparency = 1 })
 		UiKit.tween(stroke, 0.8, { Transparency = 1 }).Completed:Wait()
 		popup:Destroy()
 	end)
@@ -127,22 +133,18 @@ end
 --------------------------------------------------------------------------------
 -- 3) Notifikasi kecil (toast)
 --------------------------------------------------------------------------------
+local toastLayout = UiKit.new("UIListLayout", {
+	Padding = UDim.new(0, 6),
+	SortOrder = Enum.SortOrder.LayoutOrder,
+	HorizontalAlignment = Enum.HorizontalAlignment.Center,
+})
+local toastConstraint = UiKit.new("UISizeConstraint", {})
 local toastHolder = UiKit.new("Frame", {
 	Name = "Notifikasi",
-	AnchorPoint = Vector2.new(0.5, 0),
-	Position = UDim2.new(0.5, 0, 0, 70),
-	Size = UDim2.new(0.9, 0, 0, 0),
 	AutomaticSize = Enum.AutomaticSize.Y,
 	BackgroundTransparency = 1,
 	Parent = gui,
-}, {
-	UiKit.new("UIListLayout", {
-		Padding = UDim.new(0, 6),
-		SortOrder = Enum.SortOrder.LayoutOrder,
-		HorizontalAlignment = Enum.HorizontalAlignment.Center,
-	}),
-	UiKit.new("UISizeConstraint", { MaxSize = Vector2.new(520, math.huge) }),
-})
+}, { toastLayout, toastConstraint })
 local toastCount = 0
 
 local TOAST_SOUNDS = { portal = "PortalOpen", error = "Error" }
@@ -165,7 +167,7 @@ local function showToast(text: string, kind: string?)
 		AutomaticSize = Enum.AutomaticSize.Y,
 		Text = text,
 		Font = Theme.FontBold,
-		TextSize = 18,
+		TextSize = if compact then 15 else 18,
 		TextTransparency = 1,
 		Parent = toast,
 	})
@@ -180,11 +182,12 @@ local function showToast(text: string, kind: string?)
 	table.sort(toasts, function(a, b)
 		return a.LayoutOrder < b.LayoutOrder
 	end)
-	for index = 1, #toasts - MAX_TOASTS do
+	-- Di HP cukup 2 notifikasi supaya layar tidak penuh.
+	for index = 1, #toasts - (if compact then 2 else 4) do
 		toasts[index]:Destroy()
 	end
 
-	UiKit.tween(toast, 0.25, { BackgroundTransparency = 0.15 })
+	UiKit.tween(toast, 0.25, { BackgroundTransparency = if compact then 0.25 else 0.15 })
 	UiKit.tween(stroke, 0.25, { Transparency = 0 })
 	UiKit.tween(label, 0.25, { TextTransparency = 0 })
 
@@ -205,10 +208,9 @@ end
 local announcement = UiKit.new("Frame", {
 	Name = "Pengumuman",
 	AnchorPoint = Vector2.new(0.5, 0),
-	Position = UDim2.fromScale(0.5, 0.2),
-	Size = UDim2.new(0.6, 0, 0, 0),
 	AutomaticSize = Enum.AutomaticSize.Y,
 	BackgroundColor3 = Theme.Cream,
+	Active = true,
 	Visible = false,
 	Parent = gui,
 }, {
@@ -219,6 +221,7 @@ local announcement = UiKit.new("Frame", {
 	UiKit.new("UIListLayout", { Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder }),
 })
 local announcementScale = UiKit.new("UIScale", { Parent = announcement })
+local announcementBaseScale = 1
 
 UiKit.label({
 	Text = "📢 Pengumuman dari Guru",
@@ -246,7 +249,23 @@ local announcementFrom = UiKit.label({
 	LayoutOrder = 3,
 	Parent = announcement,
 })
+local announcementHint = UiKit.label({
+	Size = UDim2.new(1, 0, 0, 16),
+	Font = Theme.FontBody,
+	TextSize = 13,
+	TextColor3 = Theme.InkSoft,
+	Text = "Ketuk untuk menutup",
+	LayoutOrder = 4,
+	Parent = announcement,
+})
 local announcementToken = 0
+
+announcement.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
+		announcementToken += 1
+		announcement.Visible = false
+	end
+end)
 
 local function showAnnouncement(text: string, fromName: string?)
 	Sfx.Play("Announcement")
@@ -255,14 +274,61 @@ local function showAnnouncement(text: string, fromName: string?)
 	announcementBody.Text = text
 	announcementFrom.Text = if fromName then `— {fromName}` else ""
 	announcement.Visible = true
-	announcementScale.Scale = 0.85
-	UiKit.tween(announcementScale, 0.35, { Scale = 1 }, Enum.EasingStyle.Back)
+	announcementScale.Scale = announcementBaseScale * 0.85
+	UiKit.tween(announcementScale, 0.35, { Scale = announcementBaseScale }, Enum.EasingStyle.Back)
 	task.delay(ANNOUNCEMENT_DURATION, function()
 		if token == announcementToken then
 			announcement.Visible = false
 		end
 	end)
 end
+
+--------------------------------------------------------------------------------
+-- 5) Tata letak HP / PC
+--------------------------------------------------------------------------------
+-- Efek blur jarak jauh (Depth of Field) berat untuk HP dan membuat label yang jauh
+-- sulit dibaca di layar kecil. Hanya dimatikan di layar ini (lokal).
+local function applyDepthOfField()
+	local depthOfField = Lighting:FindFirstChildOfClass("DepthOfFieldEffect")
+	if depthOfField then
+		depthOfField.Enabled = not compact
+	end
+end
+
+UiKit.OnLayout(function(isCompact)
+	compact = isCompact
+	if isCompact then
+		-- HP: Poin di kiri atas (tengah atas dipakai panel tahap & tidak terhalang jempol),
+		-- notifikasi di bawah tengah (di antara joystick dan tombol lompat).
+		pointsPill.AnchorPoint = Vector2.new(0, 0)
+		pointsPill.Position = UDim2.new(0, 8, 0, 4)
+		pointsPill.Size = UDim2.fromOffset(150, 40)
+		toastHolder.AnchorPoint = Vector2.new(0.5, 1)
+		toastHolder.Position = UDim2.new(0.5, 0, 1, -84)
+		toastHolder.Size = UDim2.new(0.44, 0, 0, 0)
+		toastConstraint.MaxSize = Vector2.new(400, math.huge)
+		toastLayout.VerticalAlignment = Enum.VerticalAlignment.Bottom
+		announcement.Position = UDim2.new(0.5, 0, 0, 6)
+		announcement.Size = UDim2.new(0.8, 0, 0, 0)
+		announcementBaseScale = 0.8
+	else
+		pointsPill.AnchorPoint = Vector2.new(0.5, 0)
+		pointsPill.Position = UDim2.new(0.5, 0, 0, 8)
+		pointsPill.Size = UDim2.fromOffset(230, 52)
+		toastHolder.AnchorPoint = Vector2.new(0.5, 0)
+		toastHolder.Position = UDim2.new(0.5, 0, 0, 70)
+		toastHolder.Size = UDim2.new(0.9, 0, 0, 0)
+		toastConstraint.MaxSize = Vector2.new(520, math.huge)
+		toastLayout.VerticalAlignment = Enum.VerticalAlignment.Top
+		announcement.Position = UDim2.fromScale(0.5, 0.2)
+		announcement.Size = UDim2.new(0.6, 0, 0, 0)
+		announcementBaseScale = 1
+	end
+	announcementScale.Scale = announcementBaseScale
+	announcementHint.Visible = isCompact
+	applyDepthOfField()
+end)
+Lighting.ChildAdded:Connect(applyDepthOfField)
 
 --------------------------------------------------------------------------------
 Remotes.Get("Notify").OnClientEvent:Connect(showToast)

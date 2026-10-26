@@ -14,6 +14,7 @@
 
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
 
 local GameConfig = require(script.Parent.GameConfig)
 
@@ -141,12 +142,173 @@ function UiKit.tween(
 	return tween
 end
 
--- Kartu pop-up di tengah layar (hasil jawaban, finish, dll).
+--------------------------------------------------------------------------------
+-- Tata letak responsif (HP vs PC)
+--------------------------------------------------------------------------------
+-- Perangkat sentuh (HP/tablet) tanpa keyboard.
+function UiKit.IsTouch(): boolean
+	return UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
+end
+
+-- Layar "ringkas": HP, atau jendela yang pendek (tinggi < 500 piksel).
+function UiKit.IsCompact(): boolean
+	if UiKit.IsTouch() then
+		return true
+	end
+	local camera = workspace.CurrentCamera
+	local height = if camera then camera.ViewportSize.Y else 0
+	return height > 50 and height < 500
+end
+
+-- Jalankan callback(compact) sekarang dan setiap kali mode tata letak berubah
+-- (layar diputar, jendela diubah ukurannya, keyboard dicolok, dll).
+function UiKit.OnLayout(callback: (boolean) -> ())
+	local last: boolean? = nil
+	local function update()
+		local compact = UiKit.IsCompact()
+		if compact ~= last then
+			last = compact
+			callback(compact)
+		end
+	end
+	local viewportConnection: RBXScriptConnection? = nil
+	local function watchCamera()
+		if viewportConnection then
+			viewportConnection:Disconnect()
+		end
+		local camera = workspace.CurrentCamera
+		if camera then
+			viewportConnection = camera:GetPropertyChangedSignal("ViewportSize"):Connect(update)
+		end
+		update()
+	end
+	workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(watchCamera)
+	UserInputService:GetPropertyChangedSignal("KeyboardEnabled"):Connect(update)
+	watchCamera()
+end
+
+-- Panel info tahap (soal, status). Di PC berada di bawah-tengah. Di HP pindah ke
+-- kanan-atas supaya tidak menutupi karakter, joystick, dan tombol lompat, sedikit
+-- diperkecil, dan bisa diciutkan dengan mengetuk judulnya.
+--   local hud = UiKit.hudPanel(screenGui, warnaTahap)
+--   hud.Header.Text = "..."; local soal = hud.Line(1, { Font = ..., TextSize = 18 })
+--   hud.Expand()  -- buka lagi saat ada soal baru
+-- Isi tambahan (mis. baris tombol) diletakkan di hud.Body.
+function UiKit.hudPanel(parent: Instance, accent: Color3)
+	local constraint = UiKit.new("UISizeConstraint", {})
+	local frame = UiKit.new("Frame", {
+		Name = "PanelTahap",
+		AutomaticSize = Enum.AutomaticSize.Y,
+		BackgroundColor3 = Theme.Night,
+		BackgroundTransparency = 0.15,
+		Visible = false,
+		Parent = parent,
+	}, {
+		UiKit.corner(16),
+		UiKit.stroke(accent, 2),
+		UiKit.padding(10),
+		constraint,
+		UiKit.new("UIListLayout", { Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder }),
+	})
+	local scale = UiKit.new("UIScale", { Parent = frame })
+	local header = UiKit.new("TextButton", {
+		Name = "Judul",
+		Size = UDim2.new(1, 0, 0, 22),
+		BackgroundTransparency = 1,
+		AutoButtonColor = false,
+		Font = Theme.Font,
+		TextSize = 18,
+		TextColor3 = accent,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		TextTruncate = Enum.TextTruncate.AtEnd,
+		Text = "",
+		LayoutOrder = 1,
+		Parent = frame,
+	})
+	local arrow = UiKit.label({
+		AnchorPoint = Vector2.new(1, 0.5),
+		Position = UDim2.new(1, 28, 0.5, 0),
+		Size = UDim2.fromOffset(26, 22),
+		Text = "▾",
+		TextSize = 18,
+		TextColor3 = Theme.Cream,
+		Visible = false,
+		Parent = header,
+	})
+	UiKit.new("UIPadding", { PaddingRight = UDim.new(0, 28), Parent = header })
+	local body = UiKit.new("Frame", {
+		Name = "Isi",
+		Size = UDim2.new(1, 0, 0, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		BackgroundTransparency = 1,
+		LayoutOrder = 2,
+		Parent = frame,
+	}, {
+		UiKit.new("UIListLayout", { Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder }),
+	})
+
+	local panel = { Frame = frame, Header = header, Body = body, Collapsed = false, Compact = false }
+
+	function panel.Line(order: number, props: { [string]: any }): TextLabel
+		return UiKit.label(merge({
+			Size = UDim2.new(1, 0, 0, 0),
+			AutomaticSize = Enum.AutomaticSize.Y,
+			TextSize = 18,
+			TextXAlignment = Enum.TextXAlignment.Left,
+			LayoutOrder = order,
+			Parent = body,
+		}, props))
+	end
+
+	local function setCollapsed(collapsed: boolean)
+		panel.Collapsed = collapsed
+		body.Visible = not collapsed
+		arrow.Text = if collapsed then "▸" else "▾"
+	end
+
+	function panel.Expand()
+		if panel.Collapsed then
+			setCollapsed(false)
+		end
+	end
+
+	header.Activated:Connect(function()
+		if panel.Compact then
+			setCollapsed(not panel.Collapsed)
+		end
+	end)
+
+	UiKit.OnLayout(function(compact)
+		panel.Compact = compact
+		arrow.Visible = compact
+		if compact then
+			frame.AnchorPoint = Vector2.new(1, 0)
+			frame.Position = UDim2.new(1, -8, 0, 4)
+			frame.Size = UDim2.new(0.46, 0, 0, 0)
+			constraint.MinSize = Vector2.new(250, 0)
+			constraint.MaxSize = Vector2.new(430, math.huge)
+			scale.Scale = 0.9
+		else
+			frame.AnchorPoint = Vector2.new(0.5, 1)
+			frame.Position = UDim2.new(0.5, 0, 1, -12)
+			frame.Size = UDim2.new(0.55, 0, 0, 0)
+			constraint.MinSize = Vector2.new(320, 0)
+			constraint.MaxSize = Vector2.new(680, math.huge)
+			scale.Scale = 1
+			setCollapsed(false)
+		end
+	end)
+
+	return panel
+end
+
+-- Kartu pop-up di tengah layar (hasil jawaban, finish, dll). Ketuk/klik untuk menutup.
 --   local card = UiKit.card(screenGui, "HasilJawaban")
 --   local title = card.Line(1, { TextSize = 34 })   -- baris teks, urut menurut angka
 --   card.Stroke.Color = ...; card.Show(4); card.Hide()
 function UiKit.card(parent: Instance, name: string)
 	local stroke = UiKit.stroke(Theme.Gold, 4)
+	local constraint = UiKit.new("UISizeConstraint", {})
 	local frame = UiKit.new("Frame", {
 		Name = name,
 		AnchorPoint = Vector2.new(0.5, 0.5),
@@ -154,13 +316,14 @@ function UiKit.card(parent: Instance, name: string)
 		Size = UDim2.new(0.5, 0, 0, 0),
 		AutomaticSize = Enum.AutomaticSize.Y,
 		BackgroundColor3 = Theme.Cream,
+		Active = true, -- ketukan pada kartu tidak tembus ke dunia (mis. tidak ikut menembak)
 		Visible = false,
 		Parent = parent,
 	}, {
 		UiKit.corner(18),
 		stroke,
 		UiKit.padding(16),
-		UiKit.new("UISizeConstraint", { MinSize = Vector2.new(300, 0), MaxSize = Vector2.new(560, math.huge) }),
+		constraint,
 		UiKit.new("UIListLayout", {
 			Padding = UDim.new(0, 8),
 			SortOrder = Enum.SortOrder.LayoutOrder,
@@ -171,8 +334,19 @@ function UiKit.card(parent: Instance, name: string)
 		Frame = frame,
 		Stroke = stroke,
 		Scale = UiKit.new("UIScale", { Parent = frame }),
+		BaseScale = 1,
 		Token = 0,
 	}
+	local closeHint = UiKit.label({
+		Size = UDim2.new(1, 0, 0, 16),
+		Font = Theme.FontBody,
+		TextSize = 13,
+		TextColor3 = Theme.InkSoft,
+		Text = "Ketuk untuk menutup",
+		LayoutOrder = 999,
+		Parent = frame,
+	})
+
 	function card.Line(order: number, props: { [string]: any }): TextLabel
 		return UiKit.label(merge({
 			Size = UDim2.new(1, 0, 0, 0),
@@ -186,8 +360,8 @@ function UiKit.card(parent: Instance, name: string)
 		card.Token += 1
 		local token = card.Token
 		frame.Visible = true
-		card.Scale.Scale = 0.85
-		UiKit.tween(card.Scale, 0.35, { Scale = 1 }, Enum.EasingStyle.Back)
+		card.Scale.Scale = card.BaseScale * 0.85
+		UiKit.tween(card.Scale, 0.35, { Scale = card.BaseScale }, Enum.EasingStyle.Back)
 		task.delay(duration, function()
 			if card.Token == token then
 				frame.Visible = false
@@ -198,6 +372,23 @@ function UiKit.card(parent: Instance, name: string)
 		card.Token += 1
 		frame.Visible = false
 	end
+
+	frame.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
+			card.Hide()
+		end
+	end)
+
+	UiKit.OnLayout(function(compact)
+		-- Di HP: lebih kecil dan lebih lebar relatif terhadap layar.
+		card.BaseScale = if compact then 0.8 else 1
+		card.Scale.Scale = card.BaseScale
+		frame.Size = UDim2.new(if compact then 0.62 else 0.5, 0, 0, 0)
+		constraint.MinSize = Vector2.new(if compact then 260 else 300, 0)
+		constraint.MaxSize = Vector2.new(if compact then 520 else 560, math.huge)
+		closeHint.Visible = compact
+	end)
+
 	return card
 end
 

@@ -94,7 +94,9 @@ local function makeBillboard(stage, gate: BasePart): TextLabel
 	local billboard = UiKit.new("BillboardGui", {
 		Name = "PortalInfo",
 		Adornee = gate,
-		Size = UDim2.fromOffset(320, 132),
+		-- Ukuran campuran (stud + piksel): papan portal yang jauh ikut mengecil sehingga
+		-- keempat papan tidak saling menumpuk di layar HP.
+		Size = UDim2.new(10, 110, 4, 46),
 		StudsOffsetWorldSpace = Vector3.new(0, SpawnService.GetTopPosition(gate).Y - gate.Position.Y + labelHeight, 0),
 		MaxDistance = 160,
 		LightInfluence = 0,
@@ -108,44 +110,45 @@ local function makeBillboard(stage, gate: BasePart): TextLabel
 		BackgroundTransparency = 0.2,
 		Parent = billboard,
 	}, {
-		UiKit.corner(14),
+		UiKit.corner(UDim.new(0.1, 0)),
 		UiKit.stroke(stage.Color, 2),
+		UiKit.new("UIPadding", { PaddingLeft = UDim.new(0.04, 0), PaddingRight = UDim.new(0.04, 0) }),
 	})
 
-	UiKit.label({
+	-- Semua baris memakai posisi persen + TextScaled supaya ikut menyesuaikan ukuran papan.
+	local function line(props: { [string]: any }, maxTextSize: number): TextLabel
+		props.TextScaled = true
+		props.Parent = card
+		return UiKit.label(props, { UiKit.new("UITextSizeConstraint", { MaxTextSize = maxTextSize }) })
+	end
+
+	local title = line({
 		Text = `{stage.ElementIcon} PORTAL {string.upper(stage.Element)}`,
-		Position = UDim2.fromOffset(0, 6),
-		Size = UDim2.new(1, 0, 0, 34),
-		TextSize = 28,
+		Position = UDim2.fromScale(0, 0.04),
+		Size = UDim2.fromScale(1, 0.26),
 		TextColor3 = stage.Color,
-		Parent = card,
-	}, { UiKit.textStroke(Theme.Night, 2) })
+	}, 28)
+	UiKit.textStroke(Theme.Night, 2).Parent = title
 
-	UiKit.label({
+	line({
 		Text = `Tahap {stage.Number} · {stage.Title}`,
-		Position = UDim2.fromOffset(0, 40),
-		Size = UDim2.new(1, 0, 0, 24),
-		TextSize = 20,
-		Parent = card,
-	})
+		Position = UDim2.fromScale(0, 0.31),
+		Size = UDim2.fromScale(1, 0.18),
+	}, 20)
 
-	UiKit.label({
+	line({
 		Text = `📘 {stage.Materi}`,
-		Position = UDim2.fromOffset(0, 66),
-		Size = UDim2.new(1, 0, 0, 20),
+		Position = UDim2.fromScale(0, 0.5),
+		Size = UDim2.fromScale(1, 0.16),
 		Font = Theme.FontBody,
-		TextSize = 15,
 		TextColor3 = Theme.Cream,
-		Parent = card,
-	})
+	}, 15)
 
-	return UiKit.label({
+	return line({
 		Name = "Status",
-		Position = UDim2.fromOffset(0, 94),
-		Size = UDim2.new(1, 0, 0, 30),
-		TextSize = 22,
-		Parent = card,
-	})
+		Position = UDim2.fromScale(0, 0.7),
+		Size = UDim2.fromScale(1, 0.24),
+	}, 22)
 end
 
 local function applyVisual(stageId: string)

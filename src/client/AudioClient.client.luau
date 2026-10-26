@@ -159,14 +159,25 @@ local gui = UiKit.new("ScreenGui", {
 local musicButton = UiKit.button({
 	Name = "Musik",
 	AnchorPoint = Vector2.new(0, 0),
-	Position = UDim2.new(0.5, 123, 0, 8),
-	Size = UDim2.fromOffset(52, 52),
 	BackgroundColor3 = Theme.Night,
 	BackgroundTransparency = 0.2,
 	TextColor3 = Theme.White,
 	TextSize = 24,
 	Parent = gui,
 }, { UiKit.corner(UDim.new(0.5, 0)), UiKit.stroke(Theme.Gold, 2) })
+
+UiKit.OnLayout(function(compact)
+	if compact then
+		-- HP: di kiri atas, tepat di kanan jumlah Poin (lihat HudClient).
+		musicButton.Position = UDim2.new(0, 162, 0, 2)
+		musicButton.Size = UDim2.fromOffset(44, 44)
+		musicButton.TextSize = 20
+	else
+		musicButton.Position = UDim2.new(0.5, 123, 0, 8)
+		musicButton.Size = UDim2.fromOffset(52, 52)
+		musicButton.TextSize = 24
+	end
+end)
 
 local function renderButton()
 	if state:GetAttribute("MusicEnabled") == false then

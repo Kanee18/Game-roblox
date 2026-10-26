@@ -173,6 +173,11 @@ GameConfig.Stage2 = {
 	MaxWaveTime = 60, -- batas waktu satu gelombang
 	FireCooldown = 0.25, -- detik antar tembakan
 	MaxRange = 350, -- jarak tembak maksimal (stud)
+	LabelHeight = 7, -- tinggi label jawaban di atas virus (stud)
+	-- Bantuan membidik: ketukan/klik sejauh ini (piksel) dari virus atau labelnya tetap
+	-- dihitung mengenai virus itu. Di HP lebih besar karena jari menutupi sasaran.
+	AimAssistTouch = 90,
+	AimAssistMouse = 40,
 }
 
 -- Tahap 3 · Cable Labyrinth

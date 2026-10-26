@@ -6,7 +6,8 @@
 	  * Kendali terbang: maju otomatis, A/D atau ⬅️➡️ = belok, W/S atau ⬆️⬇️ = naik/turun
 	    (di ponsel: joystick). Kamera mengikuti dari belakang.
 	  * Label soal & jawaban A/B di setiap gerbang (hanya siswa ini yang melihat)
-	  * Panel bawah: soal, pilihan, dan "speedometer" dalam Mbps
+	  * Panel: soal & pilihan (PC: bawah; HP: kanan atas, bisa diciutkan), dan
+	    "speedometer" dalam Mbps (HP: kiri atas, di bawah jumlah Poin)
 	  * Efek ⚡ Speed Boost (jawaban benar) dan 🐢 Lemot/Buffering (salah/terlewat)
 	  * Kartu rekap setelah mendarat
 ]]
@@ -31,6 +32,16 @@ local STAGE_ID = Stage4Map.StageId
 local STAGE = GameConfig.StageById[STAGE_ID]
 local CONFIG = GameConfig.Stage4
 local NORMAL_FOV = 70
+
+-- Padding dalam persen supaya label dunia yang mengecil di kejauhan tetap berisi teks.
+local function scaledPadding(): UIPadding
+	return UiKit.new("UIPadding", {
+		PaddingLeft = UDim.new(0.04, 0),
+		PaddingRight = UDim.new(0.04, 0),
+		PaddingTop = UDim.new(0.08, 0),
+		PaddingBottom = UDim.new(0.08, 0),
+	})
+end
 
 local player = Players.LocalPlayer
 
@@ -80,13 +91,15 @@ for _, gate in map.Gates do
 		Parent = UiKit.new("BillboardGui", {
 			Name = "Stage4Soal",
 			Adornee = anchor,
-			Size = UDim2.fromOffset(420, 90),
+			-- Ukuran campuran (stud + piksel): papan besar di langit yang ikut mengecil di
+			-- kejauhan (soal juga tampil di panel layar).
+			Size = UDim2.new(36, 100, 8, 22),
 			StudsOffsetWorldSpace = gate.Center - anchor.Position + Vector3.new(0, 18, 0),
 			LightInfluence = 0,
 			MaxDistance = 420,
 			Parent = anchor,
 		}),
-	}, { UiKit.corner(14), UiKit.stroke(STAGE.Color, 2), UiKit.padding(8) })
+	}, { UiKit.corner(UDim.new(0.15, 0)), UiKit.stroke(STAGE.Color, 2), scaledPadding() })
 
 	for _, ring in gate.Rings do
 		local radius = math.max(ring.Trigger.Size.Y, ring.Trigger.Size.Z) / 2
@@ -100,13 +113,14 @@ for _, gate in map.Gates do
 			Parent = UiKit.new("BillboardGui", {
 				Name = "Stage4Jawaban",
 				Adornee = ring.Trigger,
-				Size = UDim2.fromOffset(220, 64),
+				-- Ukuran campuran: label cincin A dan B tidak saling menumpuk di layar HP.
+				Size = UDim2.new(9, 40, 2.6, 12),
 				StudsOffsetWorldSpace = Vector3.new(0, radius + 3, 0),
 				LightInfluence = 0,
 				MaxDistance = 420,
 				Parent = ring.Trigger,
 			}),
-		}, { UiKit.corner(12), UiKit.stroke(STAGE.Color, 3), UiKit.padding(6) })
+		}, { UiKit.corner(UDim.new(0.2, 0)), UiKit.stroke(STAGE.Color, 3), scaledPadding() })
 	end
 	gateViews[gate.Index] = view
 end
@@ -137,69 +151,29 @@ local gui = UiKit.new("ScreenGui", {
 	Parent = player:WaitForChild("PlayerGui"),
 })
 
-local panel = UiKit.new("Frame", {
-	Name = "PanelTerbang",
-	AnchorPoint = Vector2.new(0.5, 1),
-	Position = UDim2.new(0.5, 0, 1, -12),
-	Size = UDim2.new(0.55, 0, 0, 0),
-	AutomaticSize = Enum.AutomaticSize.Y,
-	BackgroundColor3 = Theme.Night,
-	BackgroundTransparency = 0.15,
-	Visible = false,
-	Parent = gui,
-}, {
-	UiKit.corner(16),
-	UiKit.stroke(STAGE.Color, 2),
-	UiKit.padding(12),
-	UiKit.new("UISizeConstraint", { MinSize = Vector2.new(320, 0), MaxSize = Vector2.new(680, math.huge) }),
-	UiKit.new("UIListLayout", { Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder }),
-})
-local panelHeader = UiKit.label({
-	Size = UDim2.new(1, 0, 0, 22),
-	TextSize = 18,
-	TextColor3 = STAGE.Color,
-	TextXAlignment = Enum.TextXAlignment.Left,
-	TextWrapped = false,
-	TextTruncate = Enum.TextTruncate.AtEnd,
-	LayoutOrder = 1,
-	Parent = panel,
-})
-local panelQuestion = UiKit.label({
-	Size = UDim2.new(1, 0, 0, 0),
-	AutomaticSize = Enum.AutomaticSize.Y,
-	Font = Theme.FontBold,
-	TextSize = 18,
-	TextXAlignment = Enum.TextXAlignment.Left,
-	LayoutOrder = 2,
-	Parent = panel,
-})
-local panelHint = UiKit.label({
-	Size = UDim2.new(1, 0, 0, 0),
-	AutomaticSize = Enum.AutomaticSize.Y,
+local hud = UiKit.hudPanel(gui, STAGE.Color)
+local panelHeader = hud.Header
+local panelQuestion = hud.Line(1, { Font = Theme.FontBold })
+local panelHint = hud.Line(2, {
 	Font = Theme.FontBody,
 	TextSize = 15,
 	TextColor3 = Theme.Cream,
-	TextXAlignment = Enum.TextXAlignment.Left,
-	LayoutOrder = 3,
-	Parent = panel,
 })
+local lastQuestion: string? = nil
 
 -- Speedometer bergaya kecepatan internet
 local speedLabel = UiKit.label({
-	AnchorPoint = Vector2.new(1, 1),
-	Position = UDim2.new(1, -20, 1, -150),
-	Size = UDim2.fromOffset(230, 56),
 	BackgroundTransparency = 0.15,
 	BackgroundColor3 = Theme.Night,
-	TextSize = 30,
 	TextColor3 = Theme.White,
 	Visible = false,
 	Parent = gui,
 }, { UiKit.corner(16), UiKit.stroke(STAGE.Color, 2) })
 
--- Kartu kecil hasil tiap gerbang (di atas, agar tidak menutupi jalur terbang)
+-- Kartu kecil hasil tiap gerbang. PC: di atas, agar tidak menutupi jalur terbang.
+-- HP: di bawah tengah (di antara joystick dan tombol lompat), karena kanan atas
+-- dipakai panel soal gerbang berikutnya.
 local feedbackCard = UiKit.card(gui, "HasilGerbang")
-feedbackCard.Frame.Position = UDim2.fromScale(0.5, 0.24)
 local feedbackTitle = feedbackCard.Line(1, { TextSize = 28 })
 local feedbackAnswer = feedbackCard.Line(2, { Font = Theme.FontBold, TextSize = 18 })
 local feedbackExplanation = feedbackCard.Line(3, { Font = Theme.FontBody, TextSize = 16 })
@@ -232,24 +206,35 @@ local function renderHud()
 	local inStage = player:GetAttribute("CurrentStage") == STAGE_ID
 	local state = currentState
 	local gliding = player:GetAttribute("Gliding") == true
-	panel.Visible = inStage
+	hud.Frame.Visible = inStage
 	speedLabel.Visible = inStage and gliding
 	if not inStage then
 		return
 	end
 
+	local compact = UiKit.IsCompact()
+	local controlsText = if UiKit.IsTouch()
+		then "🕹️ Joystick: kiri/kanan = belok, atas/bawah = naik/turun"
+		else "⬅️➡️ / A D: belok   ·   ⬆️⬇️ / W S: naik-turun"
 	if gliding and state and state.Question then
-		panelHeader.Text = `{STAGE.ElementIcon} BANDWIDTH GLIDER · Gerbang {state.Gate}/{state.Total}`
+		if state.Question ~= lastQuestion then
+			lastQuestion = state.Question
+			hud.Expand() -- soal baru: buka lagi panel yang diciutkan
+		end
+		panelHeader.Text = if compact
+			then `{STAGE.ElementIcon} Gerbang {state.Gate}/{state.Total}`
+			else `{STAGE.ElementIcon} BANDWIDTH GLIDER · Gerbang {state.Gate}/{state.Total}`
 		panelQuestion.Text = state.Question
 		local choices = {}
 		for slot, option in state.Options do
 			table.insert(choices, `{Stage4Map.Letter(slot)} · {option}`)
 		end
-		panelHint.Text = `{table.concat(choices, "     ")}\n⬅️➡️ / A D: belok   ·   ⬆️⬇️ / W S: naik-turun`
+		-- HP: pilihan bertumpuk ke bawah agar tidak terpotong.
+		panelHint.Text = `{table.concat(choices, if compact then "\n" else "     ")}\n{controlsText}`
 	elseif gliding then
 		panelHeader.Text = `{STAGE.ElementIcon} BANDWIDTH GLIDER`
 		panelQuestion.Text = "🏝️ Semua gerbang terlewati! Mendaratlah di pulau di depan."
-		panelHint.Text = "⬅️➡️ / A D: belok   ·   ⬆️⬇️ / W S: naik-turun"
+		panelHint.Text = controlsText
 	else
 		panelHeader.Text = `{STAGE.ElementIcon} BANDWIDTH GLIDER`
 		panelQuestion.Text = "Injak pad 🪂 di ujung menara untuk mulai terbang!"
@@ -488,6 +473,24 @@ player.CharacterAdded:Connect(function()
 	camera = workspace.CurrentCamera
 end)
 
+UiKit.OnLayout(function(compact)
+	if compact then
+		speedLabel.AnchorPoint = Vector2.new(0, 0)
+		speedLabel.Position = UDim2.new(0, 8, 0, 50)
+		speedLabel.Size = UDim2.fromOffset(190, 36)
+		speedLabel.TextSize = 20
+		feedbackCard.Frame.AnchorPoint = Vector2.new(0.5, 1)
+		feedbackCard.Frame.Position = UDim2.new(0.5, 0, 1, -6)
+	else
+		speedLabel.AnchorPoint = Vector2.new(1, 1)
+		speedLabel.Position = UDim2.new(1, -20, 1, -150)
+		speedLabel.Size = UDim2.fromOffset(230, 56)
+		speedLabel.TextSize = 30
+		feedbackCard.Frame.AnchorPoint = Vector2.new(0.5, 0.5)
+		feedbackCard.Frame.Position = UDim2.fromScale(0.5, 0.24)
+	end
+	renderHud()
+end)
+
 renderGates()
-renderHud()
 onGlidingChanged()
