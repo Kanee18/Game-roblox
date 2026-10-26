@@ -208,10 +208,11 @@ Workspace
 │       ├── Podium (Part)        ← optional: the champion statue stands on top
 │       └── ...frame / legs / trim
 └── Stages (Folder)
-    ├── Stage1 (Folder)
+    ├── Stage1 (Folder)          ← Routing Runner, see docs/03-stage1-routing-runner.md
     │   ├── Spawn (Part)         ← REQUIRED: where players arrive (flat part, Front = facing direction)
-    │   ├── ReturnToLobby (Part) ← optional: touching it sends the player back to the lobby
-    │   └── ...map (built in the Stage 1 step)
+    │   ├── Sections (Folder)    ← Section1..N, each with Doors, QuestionBoard, Checkpoint
+    │   ├── FinishArea (Folder)  ← Finish (Part) + ReturnToLobby (Part)
+    │   └── FallZone (Part)      ← invisible; falling players return to their checkpoint
     ├── Stage2 (Folder)
     ├── Stage3 (Folder)
     └── Stage4 (Folder)
@@ -229,13 +230,14 @@ ReplicatedStorage
 │   ├── GameConfig (ModuleScript)     ← ALL settings: admins, points, portals, stage names, theme
 │   ├── Remotes (ModuleScript)
 │   ├── UiKit (ModuleScript)
-│   └── QuizBank (ModuleScript)       ← later: question bank for Stages 1–4
+│   └── Stage1Map (ModuleScript)      ← reads the Stage 1 course layout (no answers inside)
 ├── RemoteEvents (Folder)             ← created automatically at runtime, don't make it by hand
 ├── GameState (Folder)                ← created automatically at runtime
 └── VideotronAvatar (Folder)          ← created automatically at runtime
 
 ServerScriptService
 ├── Main (Script)
+├── QuizBank (ModuleScript)           ← question bank. Server-only on purpose, so students can't read answers
 └── Services (Folder)
     ├── NotifyService (ModuleScript)
     ├── PointsService (ModuleScript)
@@ -244,7 +246,7 @@ ServerScriptService
     ├── AdminService (ModuleScript)
     ├── VideotronService (ModuleScript)
     └── Stages (Folder)               ← every ModuleScript here starts automatically
-        ├── Stage1_RoutingRunner      ← later
+        ├── Stage1_RoutingRunner      ← done
         ├── Stage2_FirewallDefender   ← later
         ├── Stage3_CableLabyrinth     ← later
         └── Stage4_BandwidthGlider    ← later
@@ -253,8 +255,17 @@ StarterPlayer
 └── StarterPlayerScripts
     ├── HudClient (LocalScript)
     ├── AdminPanelClient (LocalScript)
-    └── VideotronClient (LocalScript)
+    ├── VideotronClient (LocalScript)
+    └── Stage1Client (LocalScript)
 ```
+
+Special part names that work in **any** stage folder under `Workspace > Stages`:
+
+| Name | Effect |
+|---|---|
+| `ReturnToLobby` | Touching it sends the player back to the lobby |
+| `Lava` | Touching it knocks the player out; they respawn at their last checkpoint (no point loss) |
+| `FallZone` | Invisible part under the map; falling players are put straight back on their checkpoint |
 
 ### Quick start for the map
 

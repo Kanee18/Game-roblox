@@ -35,7 +35,10 @@ File suffixes tell you which object type to create:
 | `src/server/Main.server.luau` | **Script** in `ServerScriptService` | `Main` |
 | `src/server/Services/*.luau` | **ModuleScript** in `ServerScriptService > Services` (Folder) | same as file name |
 | `src/server/Services/Stages/` | **Folder** in `ServerScriptService > Services` | `Stages` |
-| `src/client/*.client.luau` | **LocalScript** in `StarterPlayer > StarterPlayerScripts` | `HudClient`, `AdminPanelClient`, `VideotronClient` |
+| `src/server/Services/Stages/*.luau` | **ModuleScript** in `ServerScriptService > Services > Stages` | same as file name, e.g. `Stage1_RoutingRunner` |
+| `src/server/QuizBank.luau` | **ModuleScript** directly in `ServerScriptService` | `QuizBank` |
+| `src/shared/Stage1Map.luau` | **ModuleScript** in `ReplicatedStorage > Shared` | `Stage1Map` |
+| `src/client/*.client.luau` | **LocalScript** in `StarterPlayer > StarterPlayerScripts` | `HudClient`, `AdminPanelClient`, `VideotronClient`, `Stage1Client` |
 
 Rule of thumb: `.server.luau` → Script, `.client.luau` → LocalScript, plain `.luau` → ModuleScript. Names must match exactly (without the extension).
 
@@ -81,6 +84,7 @@ PointsService.Add(player, -5, "Jawaban salah")    -- red "-5 Poin · Jawaban sal
 PointsService.Get(player)                         --> number
 PointsService.GetLeaderboard(5)                   --> sorted list
 PointsService.Changed:Connect(function(player, newPoints, delta) end)
+PointsService.AllReset:Connect(function() end)    -- teacher pressed "Reset Semua Poin"
 ```
 
 ### 3.2 Teacher Panel + portals: `AdminService`, `PortalService`, `AdminPanelClient`
@@ -103,8 +107,11 @@ SpawnService.SendToStage(player, "Stage1")
 SpawnService.SendToLobby(player)
 SpawnService.SetRespawn(player, checkpointPart)   -- Stage 1 checkpoints use this
 SpawnService.GetArea(player)                      --> "Lobby" | "Stage1" | ...
+SpawnService.ReturnToCheckpoint(player)           -- put back on the checkpoint without dying
 SpawnService.StageChanged:Connect(function(player, newArea, oldArea) end)
 ```
+
+Parts named `ReturnToLobby`, `Lava`, or `FallZone` anywhere under `Workspace > Stages` work automatically (see the table in Part 1).
 
 ### 3.3 Videotron: `VideotronService` + `VideotronClient`
 - The server sorts players by points (ties go to whoever reached the score first), excludes the teacher, and publishes the top 5 as JSON in `ReplicatedStorage > GameState` (attribute `Leaderboard`).

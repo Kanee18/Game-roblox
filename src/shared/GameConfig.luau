@@ -86,6 +86,8 @@ GameConfig.Names = {
 	Stages = "Stages",
 	StageSpawn = "Spawn",
 	ReturnToLobby = "ReturnToLobby",
+	Lava = "Lava", -- part di dalam Stages: menyentuhnya = gugur (respawn di checkpoint)
+	FallZone = "FallZone", -- part tak terlihat di bawah peta: jatuh = kembali ke checkpoint
 }
 
 --------------------------------------------------------------------------------
@@ -138,6 +140,15 @@ GameConfig.StageById = {}
 for _, stage in GameConfig.Stages do
 	GameConfig.StageById[stage.Id] = stage
 end
+
+-- Tahap 1 · Routing Runner (soal ada di ServerScriptService > QuizBank)
+GameConfig.Stage1 = {
+	CorrectPoints = 10, -- masuk pintu benar
+	WrongPoints = -5, -- masuk pintu salah (pemain juga gugur)
+	FinishBonus = 25, -- menyentuh garis finish setelah semua gerbang dilewati
+	FinishBonusOncePerSession = true, -- bonus finish hanya sekali per sesi kelas
+	DoorCooldown = 1, -- detik, mencegah satu langkah terhitung dua kali
+}
 
 --------------------------------------------------------------------------------
 -- VIDEOTRON (PAPAN PERINGKAT RAKSASA)

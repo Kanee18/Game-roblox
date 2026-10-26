@@ -27,6 +27,10 @@ local changedEvent = Instance.new("BindableEvent")
 -- Dipicu setiap Poin pemain berubah: (player, poinBaru, selisih)
 PointsService.Changed = changedEvent.Event
 
+local allResetEvent = Instance.new("BindableEvent")
+-- Dipicu saat Guru menekan "Reset Semua Poin" (mis. untuk mereset bonus finish).
+PointsService.AllReset = allResetEvent.Event
+
 local popupRemote = Remotes.Get("PointsPopup")
 
 local sessionCache: { [number]: number } = {} -- UserId -> Poin terakhir (keluar-masuk server)
@@ -140,6 +144,7 @@ function PointsService.ResetAll()
 	for _, player in Players:GetPlayers() do
 		setPoints(player, CONFIG.StartingPoints)
 	end
+	allResetEvent:Fire()
 end
 
 -- Daftar pemain terurut dari Poin tertinggi. Jika seri, yang lebih dulu

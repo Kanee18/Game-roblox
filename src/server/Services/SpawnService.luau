@@ -9,7 +9,13 @@
 		SpawnService.SendToStage(player, "Stage1")
 		SpawnService.SendToLobby(player)
 		SpawnService.SetRespawn(player, checkpointPart) -- checkpoint Tahap 1
+		SpawnService.ReturnToCheckpoint(player)
 		SpawnService.StageChanged:Connect(function(player, areaBaru, areaLama) end)
+
+	Part khusus di dalam Workspace > Stages (dikenali dari namanya):
+		ReturnToLobby -> pemain kembali ke Lobby
+		Lava          -> pemain gugur, lalu respawn di checkpoint terakhir
+		FallZone      -> (tak terlihat, di bawah peta) pemain langsung kembali ke checkpoint
 ]]
 
 local Players = game:GetService("Players")
@@ -21,6 +27,7 @@ local NotifyService = require(script.Parent.NotifyService)
 local NAMES = GameConfig.Names
 local LOBBY_ID = "Lobby"
 local RETURN_PAD_COOLDOWN = 2
+local FALL_ZONE_COOLDOWN = 1
 
 local SpawnService = {}
 
@@ -29,7 +36,7 @@ local stageChangedEvent = Instance.new("BindableEvent")
 SpawnService.StageChanged = stageChangedEvent.Event
 
 local respawnParts: { [Player]: BasePart } = {}
-local returnPadCooldown: { [Player]: number } = {}
+local hazardCooldown: { [Player]: number } = {}
 local initializedPlayers: { [Player]: boolean } = {}
 
 -- Titik tengah permukaan atas sebuah part (juga untuk part yang diputar,
@@ -135,6 +142,16 @@ function SpawnService.RecallAllToLobby()
 	end
 end
 
+-- Kembali ke checkpoint terakhir tanpa gugur (dipakai FallZone).
+function SpawnService.ReturnToCheckpoint(player: Player)
+	local part = respawnParts[player]
+	if part and part:IsDescendantOf(workspace) then
+		SpawnService.TeleportTo(player, part)
+	else
+		SpawnService.SendToLobby(player)
+	end
+end
+
 local function onCharacterAdded(player: Player, character: Model)
 	local part = respawnParts[player]
 	if not part then
@@ -162,25 +179,53 @@ local function onPlayerAdded(player: Player)
 	end)
 end
 
--- Part bernama "ReturnToLobby" di dalam Workspace > Stages mengembalikan pemain ke Lobby.
-local function hookReturnPad(instance: Instance)
-	if not (instance:IsA("BasePart") and instance.Name == NAMES.ReturnToLobby) then
+-- Pemain hidup yang menyentuh part (atau nil jika bukan pemain / sudah gugur).
+local function getLivingPlayer(hit: BasePart): (Player?, Humanoid?)
+	local character = hit:FindFirstAncestorOfClass("Model")
+	local player = character and Players:GetPlayerFromCharacter(character)
+	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+	if player and humanoid and humanoid.Health > 0 then
+		return player, humanoid
+	end
+	return nil, nil
+end
+
+local function passCooldown(player: Player, seconds: number): boolean
+	local now = os.clock()
+	if (hazardCooldown[player] or 0) > now then
+		return false
+	end
+	hazardCooldown[player] = now + seconds
+	return true
+end
+
+local function hookStagePart(instance: Instance)
+	if not instance:IsA("BasePart") then
 		return
 	end
-	instance.Touched:Connect(function(hit)
-		local character = hit:FindFirstAncestorOfClass("Model")
-		local player = character and Players:GetPlayerFromCharacter(character)
-		if not player then
-			return
-		end
-		local now = os.clock()
-		if (returnPadCooldown[player] or 0) > now then
-			return
-		end
-		returnPadCooldown[player] = now + RETURN_PAD_COOLDOWN
-		SpawnService.SendToLobby(player)
-		NotifyService.ToPlayer(player, "🏠 Kamu kembali ke Lobby.", "info")
-	end)
+	if instance.Name == NAMES.ReturnToLobby then
+		instance.Touched:Connect(function(hit)
+			local player = getLivingPlayer(hit)
+			if player and passCooldown(player, RETURN_PAD_COOLDOWN) then
+				SpawnService.SendToLobby(player)
+				NotifyService.ToPlayer(player, "🏠 Kamu kembali ke Lobby.", "info")
+			end
+		end)
+	elseif instance.Name == NAMES.Lava then
+		instance.Touched:Connect(function(hit)
+			local _, humanoid = getLivingPlayer(hit)
+			if humanoid then
+				humanoid.Health = 0
+			end
+		end)
+	elseif instance.Name == NAMES.FallZone then
+		instance.Touched:Connect(function(hit)
+			local player = getLivingPlayer(hit)
+			if player and passCooldown(player, FALL_ZONE_COOLDOWN) then
+				SpawnService.ReturnToCheckpoint(player)
+			end
+		end)
+	end
 end
 
 function SpawnService.Start()
@@ -190,7 +235,7 @@ function SpawnService.Start()
 	end
 	Players.PlayerRemoving:Connect(function(player)
 		respawnParts[player] = nil
-		returnPadCooldown[player] = nil
+		hazardCooldown[player] = nil
 		initializedPlayers[player] = nil
 	end)
 
@@ -201,9 +246,9 @@ function SpawnService.Start()
 			return
 		end
 		for _, descendant in stages:GetDescendants() do
-			hookReturnPad(descendant)
+			hookStagePart(descendant)
 		end
-		stages.DescendantAdded:Connect(hookReturnPad)
+		stages.DescendantAdded:Connect(hookStagePart)
 	end)
 end
 
