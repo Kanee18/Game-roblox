@@ -228,7 +228,7 @@ end)
 completeRemote.OnClientEvent:Connect(function(result)
 	Sfx.Play("Fanfare")
 	resultCard.Hide()
-	missionSubtitle.Text = `Hebat, {player.DisplayName}! Kamu sudah mengenal perangkat keras jaringan.`
+	missionSubtitle.Text = `Hebat, {player:GetAttribute("StudentName") or player.DisplayName}! Kamu sudah mengenal perangkat keras jaringan.`
 	missionStats.Text = `✅ Benar: {result.Correct}    ❌ Salah: {result.Wrong}`
 	missionBonus.Text = if result.Bonus > 0 then `🎁 Bonus +{result.Bonus} Poin` else "Bonus misi sudah kamu ambil di sesi ini."
 	missionBonus.TextColor3 = if result.Bonus > 0 then Theme.SuccessDark else Theme.InkSoft

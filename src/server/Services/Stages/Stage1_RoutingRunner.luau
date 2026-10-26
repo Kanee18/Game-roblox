@@ -25,8 +25,10 @@ local Stage1Map = require(ReplicatedStorage.Shared.Stage1Map)
 local QuizBank = require(ServerScriptService:WaitForChild("QuizBank"))
 
 local Services = script.Parent.Parent
+local NameService = require(Services.NameService)
 local NotifyService = require(Services.NotifyService)
 local PointsService = require(Services.PointsService)
+local ProgressService = require(Services.ProgressService)
 local SpawnService = require(Services.SpawnService)
 
 local STAGE_ID = Stage1Map.StageId
@@ -223,6 +225,7 @@ local function onFinishTouched(hit: BasePart)
 		return
 	end
 	state.Finished = true
+	ProgressService.MarkComplete(player, STAGE_ID)
 
 	local bonus = 0
 	if not (CONFIG.FinishBonusOncePerSession and bonusClaimed[player.UserId]) then
@@ -235,7 +238,7 @@ local function onFinishTouched(hit: BasePart)
 		Wrong = state.WrongCount,
 		Bonus = bonus,
 	})
-	NotifyService.ToAll(`🏁 {player.DisplayName} berhasil menyelesaikan Routing Runner!`, "success")
+	NotifyService.ToAll(`🏁 {NameService.Get(player)} berhasil menyelesaikan Routing Runner!`, "success")
 end
 
 local function onEnterStage(player: Player)

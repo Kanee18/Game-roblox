@@ -51,6 +51,8 @@ local CORE_ORDER = {
 	"NotifyService",
 	"PointsService",
 	"SpawnService",
+	"NameService",
+	"ProgressService",
 	"PortalService",
 	"AdminService",
 	"VideotronService",

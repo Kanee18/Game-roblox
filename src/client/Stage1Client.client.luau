@@ -319,7 +319,7 @@ end
 local function showFinish(result)
 	Sfx.Play("Fanfare")
 	feedbackCard.Hide()
-	finishSubtitle.Text = `Hebat, {player.DisplayName}! Kamu sampai di tujuan seperti paket data yang dikirim router.`
+	finishSubtitle.Text = `Hebat, {player:GetAttribute("StudentName") or player.DisplayName}! Kamu sampai di tujuan seperti paket data yang dikirim router.`
 	finishStats.Text = `✅ Benar: {result.Correct}    ❌ Salah: {result.Wrong}`
 	finishBonus.Text = if result.Bonus > 0 then `🎁 Bonus +{result.Bonus} Poin` else "Bonus finish sudah kamu ambil di sesi ini."
 	finishBonus.TextColor3 = if result.Bonus > 0 then Theme.SuccessDark else Theme.InkSoft

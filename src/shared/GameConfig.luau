@@ -60,6 +60,27 @@ GameConfig.Points = {
 }
 
 --------------------------------------------------------------------------------
+-- NAMA SISWA (diketik siswa saat pertama kali masuk game)
+--------------------------------------------------------------------------------
+GameConfig.StudentNames = {
+	Enabled = true, -- false = tidak meminta nama (memakai nama tampilan Roblox)
+	MinLength = 2,
+	MaxLength = 20,
+	RequiredForPortal = true, -- siswa yang belum mengisi nama tidak bisa masuk portal
+	ShowInPlayerList = true, -- kolom "Nama" di daftar pemain Roblox (leaderstats)
+	ShowAboveHead = true, -- nama tampil di atas kepala karakter
+	StatName = "Nama",
+}
+
+--------------------------------------------------------------------------------
+-- PAPAN POIN KELAS (ditampilkan Guru lewat Panel Guru)
+--------------------------------------------------------------------------------
+GameConfig.Scoreboard = {
+	RefreshInterval = 1, -- detik
+	KeepLeftPlayers = true, -- siswa yang keluar tetap tercantum (abu-abu) sampai Reset Poin
+}
+
+--------------------------------------------------------------------------------
 -- PORTAL
 --------------------------------------------------------------------------------
 GameConfig.Portals = {
@@ -178,6 +199,8 @@ GameConfig.Stage2 = {
 	-- dihitung mengenai virus itu. Di HP lebih besar karena jari menutupi sasaran.
 	AimAssistTouch = 90,
 	AimAssistMouse = 40,
+	-- Tahap 2 tidak punya garis finish: dianggap selesai setelah menjawab sekian gelombang.
+	WavesToComplete = 5,
 }
 
 -- Tahap 3 · Cable Labyrinth

@@ -9,11 +9,14 @@
 	Fitur:
 	  * Buka/Tutup 4 portal elemen
 	  * Tutup semua portal, panggil semua siswa ke Lobby, reset semua Poin
+	  * Papan Poin Kelas: lihat sendiri / tampilkan ke semua siswa, urutkan menurut
+	    Total atau Poin Tahap 1–4, dan ringkasan berapa siswa yang sudah selesai
 	  * Kirim pengumuman ke semua siswa
 	Tombol "🛠️ Panel Guru" di kiri layar, atau tekan G. Di HP/tablet tombolnya
 	lebih ringkas ("🛠️ Guru") dan panel memakai seluruh tinggi layar (bisa digulir).
 ]]
 
+local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
@@ -281,6 +284,128 @@ local function buildPanel()
 	end
 	state:GetAttributeChangedSignal("MusicEnabled"):Connect(refreshMusicButton)
 	refreshMusicButton()
+
+	----------------------------------------------------------------------------
+	-- Papan Poin Kelas (lihat ScoreboardClient)
+	----------------------------------------------------------------------------
+	sectionTitle("🏆 Papan Poin Kelas")
+
+	-- Ringkasan: berapa siswa yang sudah menyelesaikan tiap tahap.
+	local summaryLabel = UiKit.label({
+		Size = UDim2.new(1, 0, 0, 0),
+		AutomaticSize = Enum.AutomaticSize.Y,
+		Font = Theme.FontBody,
+		TextSize = 15,
+		TextColor3 = Theme.Ink,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		LayoutOrder = nextOrder(),
+		Parent = body,
+	})
+	local function refreshSummary()
+		local ok, entries = pcall(HttpService.JSONDecode, HttpService, state:GetAttribute("Scoreboard") or "[]")
+		if not ok or typeof(entries) ~= "table" then
+			entries = {}
+		end
+		local online = 0
+		for _, entry in entries do
+			if entry.Online then
+				online += 1
+			end
+		end
+		local parts = {}
+		for index, stage in GameConfig.Stages do
+			local done = 0
+			for _, entry in entries do
+				if entry.Stages and entry.Stages[index] and entry.Stages[index].Done then
+					done += 1
+				end
+			end
+			table.insert(parts, `{stage.ElementIcon} {done}`)
+		end
+		summaryLabel.Text = `👥 {online} siswa di kelas\n✅ Sudah selesai: {table.concat(parts, "   ")}`
+	end
+	state:GetAttributeChangedSignal("Scoreboard"):Connect(refreshSummary)
+	refreshSummary()
+
+	UiKit.label({
+		Text = "Urutkan papan menurut:",
+		Size = UDim2.new(1, 0, 0, 18),
+		Font = Theme.FontBody,
+		TextSize = 14,
+		TextColor3 = Theme.InkSoft,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		LayoutOrder = nextOrder(),
+		Parent = body,
+	})
+	local modeRow = UiKit.new("Frame", {
+		Size = UDim2.new(1, 0, 0, 40),
+		BackgroundTransparency = 1,
+		LayoutOrder = nextOrder(),
+		Parent = body,
+	}, {
+		UiKit.new("UIListLayout", {
+			FillDirection = Enum.FillDirection.Horizontal,
+			Padding = UDim.new(0, 6),
+			SortOrder = Enum.SortOrder.LayoutOrder,
+		}),
+	})
+	local modes = { { Id = "Total", Text = "Total", Color = Theme.GoldBright } }
+	for _, stage in GameConfig.Stages do
+		table.insert(modes, { Id = stage.Id, Text = `{stage.ElementIcon} {stage.Number}`, Color = stage.Color })
+	end
+	local modeButtons = {}
+	for index, mode in modes do
+		local button = UiKit.button({
+			Text = mode.Text,
+			Size = UDim2.new(1 / #modes, -6 * (#modes - 1) / #modes, 1, 0),
+			TextSize = 17,
+			LayoutOrder = index,
+			Parent = modeRow,
+		})
+		local stroke = UiKit.stroke(Theme.Ink, 2)
+		stroke.Parent = button
+		modeButtons[mode.Id] = { Button = button, Stroke = stroke, Color = mode.Color }
+		button.Activated:Connect(function()
+			Sfx.Play("Click")
+			adminAction:FireServer("SetScoreboardMode", mode.Id)
+		end)
+	end
+	local function refreshModes()
+		local current = state:GetAttribute("ScoreboardMode") or "Total"
+		for id, entry in modeButtons do
+			local selected = id == current
+			entry.Button.BackgroundColor3 = if selected then entry.Color else Theme.CreamDark
+			entry.Stroke.Enabled = selected
+		end
+	end
+	state:GetAttributeChangedSignal("ScoreboardMode"):Connect(refreshModes)
+	refreshModes()
+
+	-- Lihat sendiri dulu (hanya di layar Guru)
+	local LOCAL_VIEW = "LihatPapanPoin"
+	local viewButton = actionButton("", Theme.CreamDark, function()
+		player:SetAttribute(LOCAL_VIEW, player:GetAttribute(LOCAL_VIEW) ~= true)
+	end)
+	local function refreshViewButton()
+		viewButton.Text = if player:GetAttribute(LOCAL_VIEW) == true
+			then "🙈 Tutup Papan Poin (layar Guru)"
+			else "👁️ Lihat Papan Poin (hanya Guru)"
+	end
+	player:GetAttributeChangedSignal(LOCAL_VIEW):Connect(refreshViewButton)
+	refreshViewButton()
+
+	-- Tampilkan di layar semua siswa
+	local showButton = actionButton("", Theme.Success, function()
+		adminAction:FireServer("SetScoreboardVisible", state:GetAttribute("ScoreboardVisible") ~= true)
+	end)
+	local function refreshShowButton()
+		local shown = state:GetAttribute("ScoreboardVisible") == true
+		showButton.Text = if shown then "🙈 Sembunyikan dari Siswa" else "📊 Tampilkan ke Semua Siswa"
+		showButton.BackgroundColor3 = if shown then Theme.Danger else Theme.Success
+		showButton.TextColor3 = if shown then Theme.White else Theme.Ink
+	end
+	state:GetAttributeChangedSignal("ScoreboardVisible"):Connect(refreshShowButton)
+	refreshShowButton()
 
 	----------------------------------------------------------------------------
 	-- Pengumuman

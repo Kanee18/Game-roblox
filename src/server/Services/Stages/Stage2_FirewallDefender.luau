@@ -32,8 +32,10 @@ local UiKit = require(ReplicatedStorage.Shared.UiKit)
 local QuizBank = require(ServerScriptService:WaitForChild("QuizBank"))
 
 local Services = script.Parent.Parent
+local NameService = require(Services.NameService)
 local NotifyService = require(Services.NotifyService)
 local PointsService = require(Services.PointsService)
+local ProgressService = require(Services.ProgressService)
 local SpawnService = require(Services.SpawnService)
 
 local STAGE_ID = "Stage2"
@@ -667,6 +669,17 @@ local function lockAnswer(player: Player, monster: Monster)
 		PointsService.Add(player, CONFIG.WrongPoints, "Salah sasaran")
 	end
 	round.Answers[player] = { Correct = monster.IsCorrect, Answer = monster.Answer }
+
+	-- Tahap 2 tidak punya garis finish: selesai setelah menjawab sejumlah gelombang.
+	local answered = ProgressService.CountAnswer(player, STAGE_ID)
+	if answered >= CONFIG.WavesToComplete and ProgressService.MarkComplete(player, STAGE_ID) then
+		NotifyService.ToPlayer(
+			player,
+			`🏅 Tahap 2 selesai! Kamu sudah menjawab {answered} gelombang. Lanjutkan untuk menambah Poin.`,
+			"success"
+		)
+		NotifyService.ToAll(`🛡️ {NameService.Get(player)} menyelesaikan Firewall Defender!`, "success")
+	end
 	feedbackRemote:FireClient(player, {
 		Wave = round.Wave,
 		Correct = monster.IsCorrect,

@@ -31,8 +31,10 @@ local UiKit = require(ReplicatedStorage.Shared.UiKit)
 local QuizBank = require(ServerScriptService:WaitForChild("QuizBank"))
 
 local Services = script.Parent.Parent
+local NameService = require(Services.NameService)
 local NotifyService = require(Services.NotifyService)
 local PointsService = require(Services.PointsService)
+local ProgressService = require(Services.ProgressService)
 local SpawnService = require(Services.SpawnService)
 
 local STAGE_ID = "Stage3"
@@ -377,6 +379,7 @@ local function getLivingPlayer(hit: BasePart): Player?
 end
 
 local function completeMission(player: Player, state: PlayerState)
+	ProgressService.MarkComplete(player, STAGE_ID)
 	local bonus = 0
 	if not (CONFIG.MissionBonusOncePerSession and bonusClaimed[player.UserId]) then
 		bonus = CONFIG.MissionBonus
@@ -388,7 +391,7 @@ local function completeMission(player: Player, state: PlayerState)
 		Wrong = state.WrongCount,
 		Bonus = bonus,
 	})
-	NotifyService.ToAll(`🏆 {player.DisplayName} menyelesaikan misi Cable Labyrinth!`, "success")
+	NotifyService.ToAll(`🏆 {NameService.Get(player)} menyelesaikan misi Cable Labyrinth!`, "success")
 end
 
 local function deliver(player: Player, state: PlayerState)

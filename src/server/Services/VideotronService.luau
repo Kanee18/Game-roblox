@@ -113,7 +113,7 @@ local function getAvatarTemplate(player: Player): Model?
 end
 
 local function statueName(entry): string
-	return `👑 {entry.DisplayName} · {UiKit.formatNumber(entry.Points)} Poin`
+	return `👑 {entry.StudentName} · {UiKit.formatNumber(entry.Points)} Poin`
 end
 
 local function updatePodium(template: Model?, entry)
@@ -181,7 +181,7 @@ local function refresh()
 			table.insert(payload, {
 				UserId = entry.UserId,
 				Name = entry.Name,
-				DisplayName = entry.DisplayName,
+				DisplayName = entry.StudentName, -- nama yang diketik siswa
 				Points = entry.Points,
 			})
 		end
@@ -207,6 +207,7 @@ end
 
 local function watchPlayer(player: Player)
 	player:GetAttributeChangedSignal("IsAdmin"):Connect(markDirty)
+	player:GetAttributeChangedSignal("StudentName"):Connect(markDirty)
 	markDirty()
 end
 

@@ -24,6 +24,10 @@ Students meet in a lush fantasy lobby (Genshin Impact–style). The teacher open
   - collapsible stage panel at the top right, tap-to-close cards, and Stage 2 aim assist with color-matched answer chips
   - world labels that shrink with distance
   - see [`docs/08-mobile.md`](docs/08-mobile.md)
+- [x] **Student names & class points board.**
+  - Students type their name when they join. It is filtered, and used on the Videotron, the player list, and above their head.
+  - The teacher can show a **Papan Poin Kelas** on every screen, with points per stage, ✅ for finished stages, and a ranking by Total or by one stage.
+  - See [`docs/09-names-scoreboard.md`](docs/09-names-scoreboard.md).
 
 ## Repository layout
 
@@ -32,7 +36,7 @@ default.project.json        Rojo project (optional)
 src/
   shared/   → ReplicatedStorage.Shared       GameConfig, Remotes, UiKit, Sfx, Stage1Map, Stage4Map (ModuleScripts)
   server/   → ServerScriptService             Main (Script), QuizBank, World/* (world builders), Services/*, Services/Stages/*
-  client/   → StarterPlayer.StarterPlayerScripts   HudClient, AdminPanelClient, VideotronClient, AudioClient, Stage1Client … Stage4Client
+  client/   → StarterPlayer.StarterPlayerScripts   HudClient, AdminPanelClient, VideotronClient, AudioClient, NameClient, ScoreboardClient, Stage1Client … Stage4Client
 tools/
   BuildWorld.luau           Optional: build the world in edit mode (Command Bar) so you can decorate and save it
 docs/
@@ -44,6 +48,7 @@ docs/
   06-stage4-bandwidth-glider.md
   07-audio.md
   08-mobile.md
+  09-names-scoreboard.md
 ```
 
 File suffix → Studio type: `*.server.luau` = Script, `*.client.luau` = LocalScript, `*.luau` = ModuleScript.
@@ -63,9 +68,10 @@ File suffix → Studio type: `*.server.luau` = Script, `*.client.luau` = LocalSc
 
 1. **Publish** the place, then start a server for the class: a **private server**, or the public game with *Max Players* set to your class size (Game Settings → Places).
 2. Join first with the teacher account. You'll see **🛠️ Panel Guru** (press **G**) and the ⭐ GURU tag.
-3. Students join and gather in the lobby. Everyone can see the Videotron and the 4 locked portals.
+3. Students join, **type their name** (required before entering a portal), and gather in the lobby. Everyone can see the Videotron and the 4 locked portals.
 4. Open **one portal at a time** from the Panel Guru, in lesson order: ⛰️ Tahap 1 → 🔥 Tahap 2 → ⚡ Tahap 3 → 🍃 Tahap 4. Opening one closes the others.
 5. Between stages, use **🏠 Panggil Semua ke Lobby** and **📢 Pengumuman** to discuss the explanations, then open the next portal.
-6. At the end, the Videotron shows the class champion. Use **♻️ Reset Semua Poin** to start fresh next lesson (unless `SaveToDataStore` is on).
+6. When students have finished a stage (the panel shows how many finished each one), use **🏆 Papan Poin Kelas → 📊 Tampilkan ke Semua Siswa**. Rank by that stage (e.g. ⛰️ 1 after Stage 1) or by **Total** (e.g. after Stage 3 or at the end).
+7. At the end, the Videotron shows the class champion. Use **♻️ Reset Semua Poin** to start fresh next lesson (unless `SaveToDataStore` is on).
 
 Question banks for all stages are in one file: `src/server/QuizBank.luau` (`ServerScriptService > QuizBank`). Edit it to match your own lesson.

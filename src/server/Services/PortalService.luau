@@ -21,6 +21,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local GameConfig = require(ReplicatedStorage.Shared.GameConfig)
 local Remotes = require(ReplicatedStorage.Shared.Remotes)
 local UiKit = require(ReplicatedStorage.Shared.UiKit)
+local NameService = require(script.Parent.NameService)
 local NotifyService = require(script.Parent.NotifyService)
 local SpawnService = require(script.Parent.SpawnService)
 
@@ -201,6 +202,14 @@ local function onGateTouched(stage, hit: BasePart)
 
 	local isOpen = openState[stage.Id] == true
 	local isTeacher = player:GetAttribute("IsAdmin") == true
+
+	-- Nama dipakai di Papan Poin & Videotron, jadi siswa wajib mengisinya dulu.
+	if GameConfig.StudentNames.RequiredForPortal and not NameService.HasName(player) then
+		touchCooldown[player] = now + 3
+		NameService.RequestRename(player)
+		NotifyService.ToPlayer(player, "✏️ Tulis namamu dulu sebelum masuk portal, ya!", "error")
+		return
+	end
 
 	if not isOpen and not isTeacher then
 		touchCooldown[player] = now + 3

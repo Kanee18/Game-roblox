@@ -17,9 +17,11 @@ local TextService = game:GetService("TextService")
 local GameConfig = require(ReplicatedStorage.Shared.GameConfig)
 local Remotes = require(ReplicatedStorage.Shared.Remotes)
 local UiKit = require(ReplicatedStorage.Shared.UiKit)
+local NameService = require(script.Parent.NameService)
 local NotifyService = require(script.Parent.NotifyService)
 local PointsService = require(script.Parent.PointsService)
 local PortalService = require(script.Parent.PortalService)
+local ProgressService = require(script.Parent.ProgressService)
 local SpawnService = require(script.Parent.SpawnService)
 
 local CONFIG = GameConfig.Admin
@@ -145,6 +147,36 @@ local ACTIONS = {
 		end
 		Remotes.GetState():SetAttribute("MusicEnabled", enabled)
 		NotifyService.ToAll(if enabled then "🎵 Musik dinyalakan oleh Guru." else "🔇 Musik dimatikan oleh Guru.", "info")
+	end,
+
+	-- Papan Poin Kelas di layar semua siswa
+	SetScoreboardVisible = function(_admin: Player, visible: any)
+		if typeof(visible) ~= "boolean" then
+			return
+		end
+		ProgressService.SetVisible(visible)
+		if visible then
+			NotifyService.ToAll("📊 Guru menampilkan Papan Poin Kelas!", "portal")
+		end
+	end,
+
+	-- Dasar urutan papan: "Total" atau "Stage1".."Stage4"
+	SetScoreboardMode = function(_admin: Player, mode: any)
+		if typeof(mode) == "string" then
+			ProgressService.SetMode(mode)
+		end
+	end,
+
+	-- Minta seorang siswa mengetik ulang namanya (salah ketik / nama tidak pantas).
+	RequestRename = function(admin: Player, userId: any)
+		local student = if typeof(userId) == "number" then Players:GetPlayerByUserId(userId) else nil
+		if not student then
+			NotifyService.ToPlayer(admin, "⚠️ Siswa itu sudah keluar dari game.", "error")
+			return
+		end
+		NameService.RequestRename(student)
+		NotifyService.ToPlayer(admin, `✏️ {NameService.Get(student)} diminta mengganti nama.`, "info")
+		NotifyService.ToPlayer(student, "✏️ Guru memintamu menulis ulang namamu.", "info")
 	end,
 
 	Announce = function(admin: Player, rawText: any)

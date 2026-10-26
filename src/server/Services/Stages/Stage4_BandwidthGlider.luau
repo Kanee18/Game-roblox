@@ -30,8 +30,10 @@ local UiKit = require(ReplicatedStorage.Shared.UiKit)
 local QuizBank = require(ServerScriptService:WaitForChild("QuizBank"))
 
 local Services = script.Parent.Parent
+local NameService = require(Services.NameService)
 local NotifyService = require(Services.NotifyService)
 local PointsService = require(Services.PointsService)
+local ProgressService = require(Services.ProgressService)
 local SpawnService = require(Services.SpawnService)
 
 local STAGE_ID = Stage4Map.StageId
@@ -259,6 +261,7 @@ end
 
 local function finishFlight(player: Player, state: PlayerState)
 	endGlide(player, state)
+	ProgressService.MarkComplete(player, STAGE_ID)
 	local counts = { correct = 0, wrong = 0, missed = 0 }
 	for _, entry in state.Results do
 		counts[entry.Result] += 1
@@ -276,7 +279,7 @@ local function finishFlight(player: Player, state: PlayerState)
 		Missed = counts.missed,
 		Bonus = bonus,
 	})
-	NotifyService.ToAll(`🪂 {player.DisplayName} mendarat di pulau Bandwidth Glider!`, "success")
+	NotifyService.ToAll(`🪂 {NameService.Get(player)} mendarat di pulau Bandwidth Glider!`, "success")
 end
 
 local function getLivingPlayer(hit: BasePart): Player?

@@ -33,13 +33,13 @@ File suffixes tell you which object type to create:
 | `src/shared/Remotes.luau` | **ModuleScript** in `ReplicatedStorage > Shared` | `Remotes` |
 | `src/shared/UiKit.luau` | **ModuleScript** in `ReplicatedStorage > Shared` | `UiKit` |
 | `src/server/Main.server.luau` | **Script** in `ServerScriptService` | `Main` |
-| `src/server/Services/*.luau` | **ModuleScript** in `ServerScriptService > Services` (Folder) | same as file name |
+| `src/server/Services/*.luau` | **ModuleScript** in `ServerScriptService > Services` (Folder) | same as file name (`NotifyService`, `PointsService`, `SpawnService`, `NameService`, `ProgressService`, `PortalService`, `AdminService`, `VideotronService`) |
 | `src/server/Services/Stages/` | **Folder** in `ServerScriptService > Services` | `Stages` |
 | `src/server/Services/Stages/*.luau` | **ModuleScript** in `ServerScriptService > Services > Stages` | same as file name, e.g. `Stage1_RoutingRunner` |
 | `src/server/QuizBank.luau` | **ModuleScript** directly in `ServerScriptService` | `QuizBank` |
 | `src/server/World/*.luau` | **ModuleScript** in `ServerScriptService > World` (Folder) | `BuildAll`, `SetupLighting`, `BuildLobby`, `BuildStage1` … `BuildStage4` |
 | `src/shared/Stage1Map.luau`, `src/shared/Stage4Map.luau`, `src/shared/Sfx.luau` | **ModuleScript** in `ReplicatedStorage > Shared` | `Stage1Map`, `Stage4Map`, `Sfx` |
-| `src/client/*.client.luau` | **LocalScript** in `StarterPlayer > StarterPlayerScripts` | `HudClient`, `AdminPanelClient`, `VideotronClient`, `AudioClient`, `Stage1Client` … `Stage4Client` |
+| `src/client/*.client.luau` | **LocalScript** in `StarterPlayer > StarterPlayerScripts` | `HudClient`, `AdminPanelClient`, `VideotronClient`, `AudioClient`, `NameClient`, `ScoreboardClient`, `Stage1Client` … `Stage4Client` |
 
 Rule of thumb: `.server.luau` → Script, `.client.luau` → LocalScript, plain `.luau` → ModuleScript. Names must match exactly (without the extension).
 
@@ -96,6 +96,7 @@ PointsService.AllReset:Connect(function() end)    -- teacher pressed "Reset Semu
   - **🏠 Panggil Semua ke Lobby** teleports every student back to the lobby.
   - **♻️ Reset Semua Poin** requires a second click to confirm.
   - **🎵 Musik semua siswa** turns background music on or off for everyone (see `docs/07-audio.md`).
+  - **🏆 Papan Poin Kelas** shows how many students finished each stage. From there you can view the points board yourself or show it on every screen, ranked by Total or by one stage (see `docs/09-names-scoreboard.md`).
   - **📢 Pengumuman** shows a big announcement banner on every screen. The text is filtered with `TextService`, as Roblox requires.
 - A closed portal is a grey, solid ForceField wall. Touching it shows *"🔒 Portal ini masih terkunci. Tunggu instruksi dari Guru, ya!"*
 - An open portal glows in its element color, with sparkles, a light, and its `Glow` parts set to Neon. Touching it teleports the student to `Workspace > Stages > StageN > Spawn`.
@@ -123,7 +124,7 @@ Parts named `ReturnToLobby`, `Lava`, or `FallZone` anywhere under `Workspace > S
 - Screen layout (1600×900 canvas):
   - Title **🏆 JUARA SEMENTARA 🏆**
   - Left: 3D avatar card with a "👑 JUARA 1" badge
-  - Right: display name, @username, and points in large gold digits, plus ranks #2–#5
+  - Right: the name the student typed when joining (see `docs/09-names-scoreboard.md`), their @username, and points in large gold digits, plus ranks #2–#5
   - Bottom: a scrolling **"💡 Tahukah kamu?"** ticker of network facts (edit `GameConfig.Videotron.Facts`)
 - Before anyone scores: *"Belum ada juara. Jawab soal dengan benar untuk tampil di sini!"*
 

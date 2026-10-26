@@ -160,6 +160,10 @@ function PointsService.GetLeaderboard(limit: number?)
 				UserId = player.UserId,
 				Name = player.Name,
 				DisplayName = player.DisplayName,
+				-- Nama yang diketik siswa di awal game (lihat NameService).
+				StudentName = if typeof(player:GetAttribute("StudentName")) == "string"
+					then player:GetAttribute("StudentName")
+					else player.DisplayName,
 				Points = stat.Value,
 				ChangedAt = lastChangedAt[player] or math.huge,
 			})
