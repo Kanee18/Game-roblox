@@ -2,12 +2,49 @@
 	Main (Script)
 	Lokasi: ServerScriptService > Main
 
-	Satu-satunya Script server. Menyalakan semua sistem inti secara berurutan,
-	lalu menyalakan setiap ModuleScript di folder Services > Stages
-	(diisi pada langkah Tahap 1-4).
+	Satu-satunya Script server:
+	  1. Membangun dunia yang belum ada (World > BuildAll), sebelum pemain dimunculkan.
+	  2. Menyalakan semua sistem inti secara berurutan.
+	  3. Menyalakan setiap ModuleScript di folder Services > Stages.
 ]]
 
+local Players = game:GetService("Players")
+
 local Services = script.Parent:WaitForChild("Services")
+
+--------------------------------------------------------------------------------
+-- 1) Dunia: bangun otomatis jika belum ada (misalnya place baru dari `rojo build`).
+--    Pemain ditahan dulu supaya tidak muncul di udara kosong lalu jatuh.
+--------------------------------------------------------------------------------
+local worldFolder = script.Parent:FindFirstChild("World")
+local builder = worldFolder and worldFolder:FindFirstChild("BuildAll")
+if builder and builder:IsA("ModuleScript") then
+	local autoLoad = Players.CharacterAutoLoads
+	Players.CharacterAutoLoads = false
+	local builtCount = 0
+	local ok, err = pcall(function()
+		builtCount = require(builder).EnsureWorld()
+	end)
+	if not ok then
+		warn(`[Main] ❌ Gagal membangun dunia: {err}`)
+	end
+	Players.CharacterAutoLoads = autoLoad
+	if autoLoad then
+		for _, player in Players:GetPlayers() do
+			-- Munculkan di Lobby: yang belum punya karakter, atau yang sempat muncul
+			-- sebelum dunianya selesai dibangun.
+			if not player.Character or builtCount > 0 then
+				task.spawn(player.LoadCharacter, player)
+			end
+		end
+	end
+else
+	warn("[Main] ServerScriptService > World > BuildAll tidak ditemukan: dunia tidak dibangun otomatis.")
+end
+
+--------------------------------------------------------------------------------
+-- 2) Sistem inti & 3) tahap
+--------------------------------------------------------------------------------
 
 -- Urutan penting: layanan di bawah boleh memakai layanan di atasnya.
 local CORE_ORDER = {

@@ -37,11 +37,12 @@ Viruses get a little faster every wave, up to a limit.
 
 ## 2. Building the arena
 
-1. Make sure Part 1 is done (lighting, `BuildLobbySkeleton.luau`, core scripts).
-2. **View → Command Bar**, paste all of [`tools/BuildStage2.luau`](../tools/BuildStage2.luau), and press **Enter**.
-   - It replaces the placeholder platform in `Workspace > Stages > Stage2`.
-   - It refuses to run if `Stage2` already has an arena or anything you added yourself.
-3. **Ctrl+S**.
+The arena is **built automatically** the first time the game starts. `ServerScriptService > World > BuildStage2` (called by `World > BuildAll`) creates it in `Workspace > Stages > Stage2`. There's nothing to run.
+
+- **To see and decorate it in edit mode:** press Stop, paste [`tools/BuildWorld.luau`](../tools/BuildWorld.luau) into the Command Bar, press **Enter**, then save with **Ctrl+S**. From then on the saved version is used and the auto-builder leaves it alone.
+- **To rebuild it from scratch:** delete `Workspace > Stages > Stage2`, then press Play (or run `BuildWorld` again).
+- The builder never overwrites a `Stage2` folder that contains objects you added yourself.
+- Layout settings (sizes, counts, seed) are at the top of `src/server/World/BuildStage2.luau`.
 
 What it builds:
 
@@ -156,7 +157,7 @@ Edit `ServerScriptService > QuizBank > QuizBank.Stage2`. Same format as Stage 1,
 
 ## 5. Testing checklist
 
-1. Run `tools/BuildStage2.luau` and save. Replace/add the scripts listed in section 3.
+1. The arena builds itself when you press Play. Replace/add the scripts listed in section 3.
 2. **Test → Local Server, 2 players.** Player1 (teacher) opens **Tahap 2** in the Panel Guru.
 3. Player2 enters the 🔥 portal: they land on the fortress holding the wand, and after about 4 s, wave 1 starts.
 4. The SkyBoard shows the question. 4 viruses leave the purple gates, each with an answer label.
@@ -173,7 +174,7 @@ Edit `ServerScriptService > QuizBank > QuizBank.Stage2`. Same format as Stage 1,
 
 | Symptom | Fix |
 |---|---|
-| Output: `Arena belum dibangun` | Run `tools/BuildStage2.luau`, or check `Workspace > Stages > Stage2 > Lanes` exists |
+| Output: `Arena belum ada` | Look for `[World]` errors above it in Output. Auto-building may have failed, or `Workspace > Stages > Stage2` holds your own objects (the builder won't overwrite them). Delete that folder and press Play again |
 | No wand after entering | `Stage2_FirewallDefender` isn't in `Services > Stages`, or it failed to start (check Output for `[Main] ❌`) |
 | Clicking a virus does nothing | `Stage2Client` is missing, the wave hasn't started ("Tunggu gelombang"), or the answer is already locked |
 | Viruses don't move | They must be **unanchored**. A custom `VirusMonster` with anchored parts is unanchored automatically, so check it has a PrimaryPart |

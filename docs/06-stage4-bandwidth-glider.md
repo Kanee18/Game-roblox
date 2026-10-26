@@ -40,11 +40,12 @@
 
 ## 2. Building the course
 
-1. Make sure Part 1 is done (lighting, `BuildLobbySkeleton.luau`, core scripts).
-2. **View → Command Bar**, paste all of [`tools/BuildStage4.luau`](../tools/BuildStage4.luau), and press **Enter**.
-   - It replaces the placeholder in `Workspace > Stages > Stage4`.
-   - It refuses to run if `Stage4` already has a course or anything you added yourself.
-3. **Ctrl+S**.
+The course is **built automatically** the first time the game starts. `ServerScriptService > World > BuildStage4` (called by `World > BuildAll`) creates it in `Workspace > Stages > Stage4`. There's nothing to run.
+
+- **To see and decorate it in edit mode:** press Stop, paste [`tools/BuildWorld.luau`](../tools/BuildWorld.luau) into the Command Bar, press **Enter**, then save with **Ctrl+S**. From then on the saved version is used and the auto-builder leaves it alone.
+- **To rebuild it from scratch:** delete `Workspace > Stages > Stage4`, then press Play (or run `BuildWorld` again).
+- The builder never overwrites a `Stage4` folder that contains objects you added yourself.
+- Layout settings (sizes, counts, seed) are at the top of `src/server/World/BuildStage4.luau`.
 
 What it builds:
 
@@ -139,7 +140,7 @@ Edit `ServerScriptService > QuizBank > QuizBank.Stage4`. Same format as Stage 1,
 
 ## 5. Testing checklist
 
-1. Run `tools/BuildStage4.luau` and save. Add the scripts and updated modules from section 3.
+1. The course builds itself when you press Play. Add the scripts and updated modules from section 3.
 2. **Test → Local Server, 2 players.** Player1 (teacher) opens **Tahap 4**, and Player2 enters the 🍃 portal.
 3. Player2 lands on the tower and sees "Injak pad 🪂 …" in the bottom panel.
 4. Step on the 🪂 pad: a teal glider wing appears on the back, the character lies prone and flies forward, the camera follows from behind, and a "📶 32 Mbps" speedometer appears.
@@ -157,7 +158,7 @@ Edit `ServerScriptService > QuizBank > QuizBank.Stage4`. Same format as Stage 1,
 
 | Symptom | Fix |
 |---|---|
-| Output: `Lintasan belum dibangun` | Run `tools/BuildStage4.luau`, or check `Workspace > Stages > Stage4 > Gates` exists |
+| Output: `Lintasan belum ada` | Look for `[World]` errors above it in Output. Auto-building may have failed, or `Workspace > Stages > Stage4` holds your own objects (the builder won't overwrite them). Delete that folder and press Play again |
 | Stepping on the pad does nothing | `Stage4_BandwidthGlider` failed to start (check Output for `[Main] ❌`), or the part isn't named `LaunchPad` |
 | The glider wing appears but the character doesn't fly | `Stage4Client` is missing from StarterPlayerScripts |
 | Character spins or tumbles | Another script is changing `PlatformStand` or the camera. Disable it during Stage 4 |

@@ -20,14 +20,14 @@ Visual direction: a lush, bright, soft-shaded fantasy world in the style of Gens
 
 ## 1. Lighting: the "Genshin" look
 
-### Fastest way: run the Command Bar script
+### Applied automatically
 
-1. **View → Command Bar**.
-2. Open [`tools/SetupLighting.luau`](../tools/SetupLighting.luau), copy **all** of it, paste it into the Command Bar, and press **Enter**.
-3. Check **Output**. If a property can't be set by script (for example `Technology` on some Studio versions), set it by hand using the tables below.
-4. **Ctrl+S** to save.
+The values below are applied **automatically** the first time the game starts (`ServerScriptService > World > SetupLighting`). After that, Lighting gets the attribute `JarkomLighting = true`, so your own later changes are never overwritten. To start over, delete that attribute.
 
-### Manual values (same as the script)
+- `Technology` can't be changed while the game is running. The Rojo project already sets it to **Future**. For a copy-paste setup, set it by hand in Lighting's Properties.
+- To see the lighting in edit mode, run [`tools/BuildWorld.luau`](../tools/BuildWorld.luau) in the Command Bar (not during Play) and save with **Ctrl+S**.
+
+### The values
 
 **Lighting** (Explorer → Lighting)
 
@@ -157,7 +157,7 @@ Free models can contain hidden malicious scripts ("backdoors"). After inserting 
 
 ## 4. Art direction: lobby and portals
 
-Suggested lobby layout (this is exactly what `BuildLobbySkeleton.luau` creates):
+Suggested lobby layout (this is exactly what `World > BuildLobby` creates):
 
 ```
                        [ VIDEOTRON ]   ← north (Z = -90), screen faces the spawn
@@ -252,6 +252,11 @@ ReplicatedStorage
 ServerScriptService
 ├── Main (Script)
 ├── QuizBank (ModuleScript)           ← question bank. Server-only on purpose, so students can't read answers
+├── World (Folder)                    ← builds whatever part of the world is missing when the game starts
+│   ├── BuildAll (ModuleScript)       ← entry point, called by Main
+│   ├── SetupLighting (ModuleScript)
+│   ├── BuildLobby (ModuleScript)
+│   └── BuildStage1 … BuildStage4 (ModuleScript)
 └── Services (Folder)
     ├── NotifyService (ModuleScript)
     ├── PointsService (ModuleScript)
@@ -291,7 +296,9 @@ Special part names that work in **any** stage folder under `Workspace > Stages`:
 
 ### Quick start for the map
 
-Run [`tools/BuildLobbySkeleton.luau`](../tools/BuildLobbySkeleton.luau) in the Command Bar once. It builds the lobby island, plaza, spawn, the 4 portals (with `Gate` and `Glow` parts), the Videotron (`Screen` + `Podium`), and the 4 stage areas (`Spawn` + `ReturnToLobby`), all with the correct names. Then you can:
+The lobby is **built automatically** when the game starts (`World > BuildLobby`): the lobby island, plaza, spawn, the 4 portals (with `Gate` and `Glow` parts), and the Videotron (`Screen` + `Podium`), all with the correct names. The Studio template's `Baseplate` and `SpawnLocation` are removed automatically, because they would cover the lobby.
+
+To decorate it, first run [`tools/BuildWorld.luau`](../tools/BuildWorld.luau) in the Command Bar (edit mode, not during Play) and save. Then you can:
 - Replace the island/plaza parts with Terrain.
 - Swap portal pillars for Toolbox ruins. Keep the `Gate` part, and rename any glowing parts to `Glow`.
 - Re-skin the Videotron frame. Keep `Screen` and `Podium`.

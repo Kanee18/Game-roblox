@@ -37,6 +37,7 @@ File suffixes tell you which object type to create:
 | `src/server/Services/Stages/` | **Folder** in `ServerScriptService > Services` | `Stages` |
 | `src/server/Services/Stages/*.luau` | **ModuleScript** in `ServerScriptService > Services > Stages` | same as file name, e.g. `Stage1_RoutingRunner` |
 | `src/server/QuizBank.luau` | **ModuleScript** directly in `ServerScriptService` | `QuizBank` |
+| `src/server/World/*.luau` | **ModuleScript** in `ServerScriptService > World` (Folder) | `BuildAll`, `SetupLighting`, `BuildLobby`, `BuildStage1` … `BuildStage4` |
 | `src/shared/Stage1Map.luau`, `src/shared/Stage4Map.luau`, `src/shared/Sfx.luau` | **ModuleScript** in `ReplicatedStorage > Shared` | `Stage1Map`, `Stage4Map`, `Sfx` |
 | `src/client/*.client.luau` | **LocalScript** in `StarterPlayer > StarterPlayerScripts` | `HudClient`, `AdminPanelClient`, `VideotronClient`, `AudioClient`, `Stage1Client` … `Stage4Client` |
 
@@ -130,8 +131,8 @@ Parts named `ReturnToLobby`, `Lava`, or `FallZone` anywhere under `Workspace > S
 
 ## 4. Testing checklist
 
-1. Run `tools/SetupLighting.luau` and `tools/BuildLobbySkeleton.luau` in the Command Bar (see Part 1).
-2. Install the scripts (section 1), then **Ctrl+S**.
+1. Install the scripts (section 1), then **Ctrl+S**.
+2. Nothing else to build: when the game starts, `World > BuildAll` creates the lighting, lobby, portals, Videotron, and all 4 stages if they're missing. Output shows `🌍 [World] … dibangun otomatis`.
 3. **Test → Clients and Servers → Local Server, 2 players → Start.**
    - **Player1** = teacher (UserId -1). You should see "🛠️ Panel Guru" and the ⭐ GURU tag.
    - **Player2** = student. No panel.

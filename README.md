@@ -27,15 +27,10 @@ Students meet in a lush fantasy lobby (Genshin Impact–style). The teacher open
 default.project.json        Rojo project (optional)
 src/
   shared/   → ReplicatedStorage.Shared       GameConfig, Remotes, UiKit, Sfx, Stage1Map, Stage4Map (ModuleScripts)
-  server/   → ServerScriptService             Main (Script), QuizBank, Services/*, Services/Stages/*
+  server/   → ServerScriptService             Main (Script), QuizBank, World/* (world builders), Services/*, Services/Stages/*
   client/   → StarterPlayer.StarterPlayerScripts   HudClient, AdminPanelClient, VideotronClient, AudioClient, Stage1Client … Stage4Client
 tools/
-  SetupLighting.luau        Run once in the Studio Command Bar to set up the Genshin-style lighting
-  BuildLobbySkeleton.luau   Run once in the Command Bar to build a test-ready lobby, portals, Videotron, and stages
-  BuildStage1.luau          Run once in the Command Bar to build the Routing Runner course
-  BuildStage2.luau          Run once in the Command Bar to build the Firewall Defender arena
-  BuildStage3.luau          Run once in the Command Bar to build the Cable Labyrinth maze
-  BuildStage4.luau          Run once in the Command Bar to build the Bandwidth Glider sky course
+  BuildWorld.luau           Optional: build the world in edit mode (Command Bar) so you can decorate and save it
 docs/
   01-studio-setup.md
   02-core-systems.md
@@ -50,10 +45,12 @@ File suffix → Studio type: `*.server.luau` = Script, `*.client.luau` = LocalSc
 
 ## Quick start
 
-1. Open a new **Baseplate** in Roblox Studio and delete the default `Baseplate` and `SpawnLocation`.
-2. Paste `tools/SetupLighting.luau` into the Command Bar and press Enter. Then do the same with `tools/BuildLobbySkeleton.luau`, then `tools/BuildStage1.luau` through `tools/BuildStage4.luau`.
-3. Add the scripts from `src/`, either with Rojo (`rojo serve`) or by copy-paste (see the table in `docs/02-core-systems.md`).
-4. Put your UserId in `GameConfig.Admin.UserIds`. Optionally paste music IDs into `GameConfig.Audio.Music` (see `docs/07-audio.md`).
+1. **Put the scripts into a place** (pick one):
+   - **Rojo:** in the project folder run `rojo build -o JaringanKomputer.rbxl`, then open that file in Studio. It already has every script, Future lighting, and StreamingEnabled off.
+   - **Copy-paste:** create the objects listed in `docs/02-core-systems.md` (section 1) in a new Baseplate.
+2. Put your UserId in `GameConfig.Admin.UserIds`. Optionally paste music IDs into `GameConfig.Audio.Music` (see `docs/07-audio.md`).
+3. Press **Play**. The world builds itself automatically: lighting, lobby, 4 portals, Videotron, and all 4 stages (`ServerScriptService > World`). The template's `Baseplate`/`SpawnLocation` are removed, and players appear in the lobby.
+4. *(Optional)* To see and decorate the world in edit mode: press Stop, paste `tools/BuildWorld.luau` into **View → Command Bar**, press Enter, and save with **Ctrl+S**.
 5. Test with **Test → Local Server (2 players)**. Player1 is the teacher and Player2 is a student.
 
 ## Running a class session

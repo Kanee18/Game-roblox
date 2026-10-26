@@ -35,11 +35,12 @@ Spawn ──► Obstacle 1 ──► 🔀 Router Gate 1 ──► Checkpoint 1 �
 
 ## 2. Building the course
 
-1. Make sure Part 1 is done: lighting, `BuildLobbySkeleton.luau`, and the core scripts.
-2. **View → Command Bar**, paste all of [`tools/BuildStage1.luau`](../tools/BuildStage1.luau), and press **Enter**.
-   - It replaces the placeholder platform in `Workspace > Stages > Stage1` with the full course, about 650 studs long.
-   - It refuses to run if `Stage1` already contains a course or anything you added yourself, so it never overwrites your work.
-3. **Ctrl+S**.
+The course is **built automatically** the first time the game starts. `ServerScriptService > World > BuildStage1` (called by `World > BuildAll`) creates it in `Workspace > Stages > Stage1`, about 650 studs long. There's nothing to run.
+
+- **To see and decorate it in edit mode:** press Stop, paste [`tools/BuildWorld.luau`](../tools/BuildWorld.luau) into the Command Bar, press **Enter**, then save with **Ctrl+S**. From then on the saved version is used and the auto-builder leaves it alone.
+- **To rebuild it from scratch:** delete `Workspace > Stages > Stage1`, then press Play (or run `BuildWorld` again).
+- The builder never overwrites a `Stage1` folder that contains objects you added yourself.
+- Layout settings (sizes, counts, seed) are at the top of `src/server/World/BuildStage1.luau`.
 
 What it builds:
 
@@ -173,8 +174,7 @@ Edit `ServerScriptService > QuizBank`. Each question:
 
 ## 5. Testing checklist
 
-1. Run `tools/BuildStage1.luau` and save.
-2. **Test → Local Server, 2 players.**
+1. The course builds itself when you press Play. 2. **Test → Local Server, 2 players.**
 3. As Player1 (teacher), open the Panel Guru and open **Tahap 1**. As Player2, walk into the ⛰️ portal.
 4. Player2 should land on the gold Spawn facing the rules banner, with the question panel at the bottom.
 5. Clear obstacle 1. The gate board and the A/B/C signs show Player2's question.
@@ -189,7 +189,7 @@ Edit `ServerScriptService > QuizBank`. Each question:
 
 | Symptom | Fix |
 |---|---|
-| Output: `Lintasan belum dibangun` | Run `tools/BuildStage1.luau`, or check `Workspace > Stages > Stage1 > Sections` exists |
+| Output: `Lintasan belum ada` | Look for `[World]` errors above it in Output. Auto-building may have failed, or `Workspace > Stages > Stage1` holds your own objects (the builder won't overwrite them). Delete that folder and press Play again |
 | Boards and signs stay blank | `Stage1Client` is missing from StarterPlayerScripts, or `StreamingEnabled` is on and the course hasn't streamed in. Turn it off (Part 1) |
 | Walking through doors does nothing | The section number doesn't match the student's progress (doors of an already-passed gate are ignored by design), or the door has no `Trigger` part |
 | Text is mirrored or on the wrong side | Rotate the Sign/QuestionBoard part so its Front faces the players, or set its `Face` attribute |

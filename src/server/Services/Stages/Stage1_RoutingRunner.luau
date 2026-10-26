@@ -311,7 +311,7 @@ function Stage1.Start()
 		local stages = workspace:WaitForChild(GameConfig.Names.Stages, 15)
 		local stageFolder = stages and stages:WaitForChild(STAGE_ID, 15)
 		if not (stageFolder and stageFolder:WaitForChild("Sections", 15)) then
-			warn("[Stage1] Lintasan belum dibangun. Jalankan tools/BuildStage1.luau di Command Bar.")
+			warn("[Stage1] Lintasan belum ada. Biasanya dibangun otomatis oleh World > BuildAll — periksa pesan [World] di Output.")
 			return
 		end
 		setupMap(stageFolder)

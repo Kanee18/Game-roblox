@@ -999,7 +999,7 @@ function Stage2.Start()
 		local stages = workspace:WaitForChild(GameConfig.Names.Stages, 15)
 		local stageFolder = stages and stages:WaitForChild(STAGE_ID, 15)
 		if not (stageFolder and stageFolder:WaitForChild("Lanes", 15)) then
-			warn("[Stage2] Arena belum dibangun. Jalankan tools/BuildStage2.luau di Command Bar.")
+			warn("[Stage2] Arena belum ada. Biasanya dibangun otomatis oleh World > BuildAll — periksa pesan [World] di Output.")
 			return
 		end
 		setupMap(stageFolder)

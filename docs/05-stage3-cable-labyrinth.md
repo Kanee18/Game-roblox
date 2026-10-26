@@ -39,11 +39,12 @@
 
 ## 2. Building the maze
 
-1. Make sure Part 1 is done (lighting, `BuildLobbySkeleton.luau`, core scripts).
-2. **View → Command Bar**, paste all of [`tools/BuildStage3.luau`](../tools/BuildStage3.luau), and press **Enter**.
-   - It replaces the placeholder platform in `Workspace > Stages > Stage3`.
-   - It refuses to run if `Stage3` already has a maze or anything you added yourself.
-3. **Ctrl+S**.
+The maze is **built automatically** the first time the game starts. `ServerScriptService > World > BuildStage3` (called by `World > BuildAll`) creates it in `Workspace > Stages > Stage3`. There's nothing to run.
+
+- **To see and decorate it in edit mode:** press Stop, paste [`tools/BuildWorld.luau`](../tools/BuildWorld.luau) into the Command Bar, press **Enter**, then save with **Ctrl+S**. From then on the saved version is used and the auto-builder leaves it alone.
+- **To rebuild it from scratch:** delete `Workspace > Stages > Stage3`, then press Play (or run `BuildWorld` again).
+- The builder never overwrites a `Stage3` folder that contains objects you added yourself.
+- Layout settings (sizes, counts, seed) are at the top of `src/server/World/BuildStage3.luau`.
 
 What it builds:
 
@@ -176,7 +177,7 @@ No wrong answers are needed: every other device in the maze is a distractor. A r
 
 ## 5. Testing checklist
 
-1. Run `tools/BuildStage3.luau` and save. Add the scripts and updated modules from section 3.
+1. The maze builds itself when you press Play. Add the scripts and updated modules from section 3.
 2. **Test → Local Server, 2 players.** Player1 (teacher) opens **Tahap 3**, and Player2 enters the ⚡ portal.
 3. Player2 spawns in the plaza facing the giant CPU. The billboard above it and the bottom panel show a request, and the light beams with name labels poke above the maze walls.
 4. Walk into the maze and touch a pedestal: a small copy of the device floats above your head, and the panel says "🎒 Kamu membawa: …".
@@ -191,7 +192,7 @@ No wrong answers are needed: every other device in the maze is a distractor. A r
 
 | Symptom | Fix |
 |---|---|
-| Output: `Labirin belum dibangun` | Run `tools/BuildStage3.luau`, or check `Workspace > Stages > Stage3 > Machine` exists |
+| Output: `Labirin belum ada` | Look for `[World]` errors above it in Output. Auto-building may have failed, or `Workspace > Stages > Stage3` holds your own objects (the builder won't overwrite them). Delete that folder and press Play again |
 | A pedestal shows nothing | Its `ItemId` attribute doesn't match any Id in `GameConfig.Stage3.Items` (see the Output warning) |
 | Delivering does nothing | You're not carrying anything, the part isn't named `DeliverySlot`, or it has `CanTouch` off |
 | No request billboard | `Stage3Client` is missing, or `Machine` has no PrimaryPart or parts |
