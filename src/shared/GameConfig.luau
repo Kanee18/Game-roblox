@@ -201,6 +201,23 @@ GameConfig.Stage3 = {
 	},
 }
 
+-- Tahap 4 · Bandwidth Glider
+GameConfig.Stage4 = {
+	CorrectPoints = 10, -- terbang melewati cincin jawaban benar
+	WrongPoints = -5, -- melewati cincin jawaban salah
+	FinishBonus = 25, -- mendarat di pulau akhir
+	FinishBonusOncePerSession = true,
+
+	BaseSpeed = 32, -- kecepatan maju (stud/detik), tampil sebagai "32 Mbps"
+	SteerSpeed = 20, -- belok kiri/kanan
+	ClimbSpeed = 12, -- naik/turun
+	BoostMultiplier = 1.7, -- jawaban benar: Speed Boost
+	SlowMultiplier = 0.5, -- jawaban salah / terlewat: lemot
+	EffectDuration = 3, -- detik
+
+	MissMargin = 25, -- stud melewati bidang gerbang tanpa masuk cincin = terlewat
+}
+
 --------------------------------------------------------------------------------
 -- VIDEOTRON (PAPAN PERINGKAT RAKSASA)
 --------------------------------------------------------------------------------

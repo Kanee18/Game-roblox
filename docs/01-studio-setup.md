@@ -223,7 +223,11 @@ Workspace
     │   ├── Spawn (Part)         ← REQUIRED
     │   ├── Machine (Model)      ← central CPU; contains DeliverySlot (Part)
     │   └── Stations (Folder)    ← ItemStation parts with an ItemId attribute
-    └── Stage4 (Folder)
+    └── Stage4 (Folder)          ← Bandwidth Glider, see docs/06-stage4-bandwidth-glider.md
+        ├── Spawn (Part)         ← REQUIRED: on the tower
+        ├── LaunchPad (Part)     ← step on it to start gliding
+        ├── Gates (Folder)       ← Gate1..N, each with RingA/RingB containing a Trigger part
+        └── LandingZone (Part)   ← invisible volume at the end of the glide line
 
 Lighting
 ├── Atmosphere
@@ -238,7 +242,8 @@ ReplicatedStorage
 │   ├── GameConfig (ModuleScript)     ← ALL settings: admins, points, portals, stage names, theme
 │   ├── Remotes (ModuleScript)
 │   ├── UiKit (ModuleScript)
-│   └── Stage1Map (ModuleScript)      ← reads the Stage 1 course layout (no answers inside)
+│   ├── Stage1Map (ModuleScript)      ← reads the Stage 1 course layout (no answers inside)
+│   └── Stage4Map (ModuleScript)      ← reads the Stage 4 gates and glide line (no answers inside)
 ├── RemoteEvents (Folder)             ← created automatically at runtime, don't make it by hand
 ├── GameState (Folder)                ← created automatically at runtime
 └── VideotronAvatar (Folder)          ← created automatically at runtime
@@ -257,7 +262,7 @@ ServerScriptService
         ├── Stage1_RoutingRunner      ← done
         ├── Stage2_FirewallDefender   ← done
         ├── Stage3_CableLabyrinth     ← done
-        └── Stage4_BandwidthGlider    ← later
+        └── Stage4_BandwidthGlider    ← done
 
 StarterPlayer
 └── StarterPlayerScripts
@@ -266,7 +271,8 @@ StarterPlayer
     ├── VideotronClient (LocalScript)
     ├── Stage1Client (LocalScript)
     ├── Stage2Client (LocalScript)
-    └── Stage3Client (LocalScript)
+    ├── Stage3Client (LocalScript)
+    └── Stage4Client (LocalScript)
 
 ServerStorage
 ├── VirusMonster (Model, optional)    ← custom virus look for Stage 2; a built-in one is used otherwise

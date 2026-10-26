@@ -445,6 +445,132 @@ QuizBank.Stage3Info = {
 	Coaxial = "Kabel coaxial punya inti tembaga dan pelindung logam, sering dipakai untuk antena TV.",
 	Server = "Server adalah komputer yang menyediakan layanan atau data untuk komputer lain.",
 }
--- QuizBank.Stage4 = { ... } -- Bandwidth Glider
+--------------------------------------------------------------------------------
+-- TAHAP 4 · BANDWIDTH GLIDER — Kecepatan Internet & Koneksi
+-- Dibaca sambil terbang: buat soal sesingkat mungkin.
+-- Hanya ada 2 cincin (A/B), jadi cukup 1 jawaban salah. Jika lebih, dipilih acak.
+--------------------------------------------------------------------------------
+QuizBank.Stage4 = {
+	{
+		Question = "Satuan kecepatan internet adalah …",
+		Correct = "bps (bit per detik)",
+		Wrong = { "km/jam", "Volt", "Celsius" },
+		Explanation = "Kecepatan internet diukur dalam bit per detik (bps), misalnya Mbps = megabit per detik.",
+	},
+	{
+		Question = "Mana yang lebih CEPAT?",
+		Correct = "100 Mbps",
+		Wrong = { "10 Mbps", "1 Mbps", "512 Kbps" },
+		Explanation = "Semakin besar angka Mbps, semakin banyak data yang mengalir setiap detik.",
+	},
+	{
+		Question = "Kapasitas maksimal data yang bisa dikirim per detik disebut …",
+		Correct = "Bandwidth",
+		Wrong = { "Password", "Hardware", "Browser" },
+		Explanation = "Bandwidth itu seperti lebar jalan: makin lebar, makin banyak data yang bisa lewat sekaligus.",
+	},
+	{
+		Question = "Video berhenti sebentar untuk memuat data disebut …",
+		Correct = "Buffering",
+		Wrong = { "Booting", "Typing", "Printing" },
+		Explanation = "Buffering terjadi saat data datang lebih lambat daripada kecepatan video diputar.",
+	},
+	{
+		Question = "Waktu tunda data pergi-pulang (dalam ms) disebut …",
+		Correct = "Ping / latensi",
+		Wrong = { "Bandwidth", "Resolusi", "Megapiksel" },
+		Explanation = "Ping (latensi) adalah waktu tempuh data pergi-pulang. Makin kecil, makin responsif.",
+	},
+	{
+		Question = "Untuk game online, ping yang lebih baik adalah …",
+		Correct = "20 ms",
+		Wrong = { "500 ms", "900 ms" },
+		Explanation = "Ping kecil berarti jeda kecil. 20 ms jauh lebih responsif daripada 500 ms.",
+	},
+	{
+		Question = "Jaringan seluler yang paling cepat adalah …",
+		Correct = "5G",
+		Wrong = { "3G", "2G", "EDGE" },
+		Explanation = "Makin baru generasinya, makin cepat: 2G < 3G < 4G < 5G.",
+	},
+	{
+		Question = "Media kabel yang paling cepat untuk internet adalah …",
+		Correct = "Fiber optik",
+		Wrong = { "Kabel telepon", "Kabel listrik" },
+		Explanation = "Fiber optik mengirim data dengan cahaya, jauh lebih cepat daripada kabel tembaga.",
+	},
+	{
+		Question = "Jika banyak orang memakai satu Wi-Fi bersamaan, internet jadi …",
+		Correct = "Lebih lambat",
+		Wrong = { "Lebih cepat", "Tidak berubah" },
+		Explanation = "Bandwidth dibagi ke semua pengguna, jadi bagian tiap orang makin kecil.",
+	},
+	{
+		Question = "1 Byte sama dengan …",
+		Correct = "8 bit",
+		Wrong = { "10 bit", "2 bit", "1000 bit" },
+		Explanation = "1 byte = 8 bit. Ingat: B besar = Byte, b kecil = bit.",
+	},
+	{
+		Question = "File 100 MB diunduh dengan internet 8 Mbps. Lamanya sekitar …",
+		Correct = "100 detik",
+		Wrong = { "1 detik", "1 jam" },
+		Explanation = "100 MB = 800 Mb (1 byte = 8 bit). 800 Mb ÷ 8 Mbps = 100 detik.",
+	},
+	{
+		Question = "Mengambil file dari internet ke perangkat kita disebut …",
+		Correct = "Download",
+		Wrong = { "Upload", "Restart" },
+		Explanation = "Download (unduh): internet → perangkat. Upload (unggah): perangkat → internet.",
+	},
+	{
+		Question = "Mengirim video dari ponsel ke media sosial disebut …",
+		Correct = "Upload",
+		Wrong = { "Download", "Format" },
+		Explanation = "Upload berarti mengirim data dari perangkat kita ke internet.",
+	},
+	{
+		Question = "Sinyal Wi-Fi paling kuat jika kita berada …",
+		Correct = "Dekat router",
+		Wrong = { "Di balik tembok tebal", "Di ruang bawah tanah" },
+		Explanation = "Jarak dan penghalang seperti tembok melemahkan sinyal Wi-Fi.",
+	},
+	{
+		Question = "Satuan yang lebih BESAR dari Mbps adalah …",
+		Correct = "Gbps",
+		Wrong = { "Kbps", "bps" },
+		Explanation = "Urutannya bps < Kbps < Mbps < Gbps, dan setiap tingkat ×1000.",
+	},
+	{
+		Question = "Kuota internet dihitung dalam satuan …",
+		Correct = "GB (gigabyte)",
+		Wrong = { "Mbps", "Volt", "Meter" },
+		Explanation = "Kuota = jumlah data (GB). Kecepatan = laju data (Mbps). Keduanya berbeda!",
+	},
+	{
+		Question = "Internet satelit paling cocok untuk daerah …",
+		Correct = "Terpencil",
+		Wrong = { "Pusat kota", "Gedung server" },
+		Explanation = "Satelit menjangkau daerah terpencil yang belum terjangkau kabel atau menara seluler.",
+	},
+	{
+		Question = "Aplikasi untuk mengukur kecepatan internet disebut …",
+		Correct = "Speed test",
+		Wrong = { "Antivirus", "Kalkulator" },
+		Explanation = "Speed test mengukur kecepatan download, upload, dan ping.",
+	},
+	{
+		Question = "Video kualitas 4K butuh bandwidth yang …",
+		Correct = "Lebih besar",
+		Wrong = { "Lebih kecil", "Nol" },
+		Explanation = "Video beresolusi tinggi berisi lebih banyak data per detik, jadi butuh bandwidth lebih besar.",
+	},
+	{
+		Question = "Bluetooth cocok untuk perangkat yang …",
+		Correct = "Berjarak dekat",
+		Wrong = { "Beda negara", "Beda kota" },
+		Explanation = "Bluetooth adalah koneksi nirkabel jarak pendek (sekitar 10 meter).",
+	},
+}
 
 return QuizBank
