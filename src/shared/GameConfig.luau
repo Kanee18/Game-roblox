@@ -175,6 +175,32 @@ GameConfig.Stage2 = {
 	MaxRange = 350, -- jarak tembak maksimal (stud)
 }
 
+-- Tahap 3 · Cable Labyrinth
+GameConfig.Stage3 = {
+	CorrectPoints = 15, -- membawa perangkat yang tepat ke Mesin Pusat
+	WrongPoints = -5, -- membawa perangkat yang salah
+	MissionGoal = 6, -- jumlah pengiriman benar untuk menyelesaikan misi
+	MissionBonus = 25,
+	MissionBonusOncePerSession = true,
+	PickupCooldown = 1, -- detik
+
+	-- Daftar perangkat di labirin. Id dipakai di QuizBank.Stage3 (Correct = Id)
+	-- dan di Attribute "ItemId" pada setiap ItemStation.
+	Items = {
+		{ Id = "Router", Name = "Router", Icon = "📡", Color = Color3.fromRGB(255, 120, 80) },
+		{ Id = "Switch", Name = "Switch", Icon = "🔀", Color = Color3.fromRGB(90, 170, 255) },
+		{ Id = "Hub", Name = "Hub", Icon = "🔘", Color = Color3.fromRGB(225, 205, 130) },
+		{ Id = "Modem", Name = "Modem", Icon = "📟", Color = Color3.fromRGB(245, 245, 255) },
+		{ Id = "AccessPoint", Name = "Access Point", Icon = "📶", Color = Color3.fromRGB(120, 230, 255) },
+		{ Id = "KabelUTP", Name = "Kabel UTP", Icon = "🔵", Color = Color3.fromRGB(70, 120, 255) },
+		{ Id = "RJ45", Name = "Konektor RJ-45", Icon = "🔌", Color = Color3.fromRGB(200, 240, 255) },
+		{ Id = "FiberOptik", Name = "Kabel Fiber Optik", Icon = "💡", Color = Color3.fromRGB(255, 170, 40) },
+		{ Id = "NIC", Name = "NIC (Kartu Jaringan)", Icon = "💳", Color = Color3.fromRGB(80, 210, 120) },
+		{ Id = "Coaxial", Name = "Kabel Coaxial", Icon = "📺", Color = Color3.fromRGB(160, 160, 175) },
+		{ Id = "Server", Name = "Server", Icon = "🗄️", Color = Color3.fromRGB(176, 112, 255) },
+	},
+}
+
 --------------------------------------------------------------------------------
 -- VIDEOTRON (PAPAN PERINGKAT RAKSASA)
 --------------------------------------------------------------------------------

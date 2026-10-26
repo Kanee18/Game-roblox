@@ -219,7 +219,10 @@ Workspace
     │   ├── SkyBoard (Part)      ← question board in the sky
     │   ├── Core (Model)         ← the Inti Server the class defends
     │   └── Monsters (Folder)    ← filled with viruses at runtime
-    ├── Stage3 (Folder)
+    ├── Stage3 (Folder)          ← Cable Labyrinth, see docs/05-stage3-cable-labyrinth.md
+    │   ├── Spawn (Part)         ← REQUIRED
+    │   ├── Machine (Model)      ← central CPU; contains DeliverySlot (Part)
+    │   └── Stations (Folder)    ← ItemStation parts with an ItemId attribute
     └── Stage4 (Folder)
 
 Lighting
@@ -253,7 +256,7 @@ ServerScriptService
     └── Stages (Folder)               ← every ModuleScript here starts automatically
         ├── Stage1_RoutingRunner      ← done
         ├── Stage2_FirewallDefender   ← done
-        ├── Stage3_CableLabyrinth     ← later
+        ├── Stage3_CableLabyrinth     ← done
         └── Stage4_BandwidthGlider    ← later
 
 StarterPlayer
@@ -262,10 +265,12 @@ StarterPlayer
     ├── AdminPanelClient (LocalScript)
     ├── VideotronClient (LocalScript)
     ├── Stage1Client (LocalScript)
-    └── Stage2Client (LocalScript)
+    ├── Stage2Client (LocalScript)
+    └── Stage3Client (LocalScript)
 
 ServerStorage
-└── VirusMonster (Model, optional)    ← custom virus look for Stage 2; a built-in one is used otherwise
+├── VirusMonster (Model, optional)    ← custom virus look for Stage 2; a built-in one is used otherwise
+└── Stage3Items (Folder, optional)    ← custom device models for Stage 3, named by item Id
 ```
 
 Special part names that work in **any** stage folder under `Workspace > Stages`:

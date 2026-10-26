@@ -312,7 +312,139 @@ QuizBank.Stage2 = {
 	},
 }
 
--- QuizBank.Stage3 = { ... } -- Cable Labyrinth
+--------------------------------------------------------------------------------
+-- TAHAP 3 · CABLE LABYRINTH — Perangkat Keras Jaringan
+-- Mesin Pusat menjelaskan FUNGSI/CIRI perangkat; siswa harus tahu namanya,
+-- lalu mencarinya di labirin. Correct = Id perangkat (lihat GameConfig.Stage3.Items).
+-- Tidak perlu jawaban salah: semua perangkat lain di labirin adalah pengecohnya.
+--------------------------------------------------------------------------------
+QuizBank.Stage3 = {
+	{
+		Question = "Bawakan perangkat yang menghubungkan dua jaringan berbeda dan menentukan jalur terbaik untuk data!",
+		Correct = "Router",
+		Explanation = "Router bekerja seperti polisi lalu lintas data: menghubungkan jaringan yang berbeda dan memilih jalur terbaik.",
+	},
+	{
+		Question = "Bawakan perangkat yang menghubungkan banyak komputer dalam satu LAN dan mengirim data HANYA ke komputer tujuan!",
+		Correct = "Switch",
+		Explanation = "Switch itu 'pintar': ia mengenali alamat tujuan sehingga data hanya dikirim ke port yang tepat.",
+	},
+	{
+		Question = "Bawakan perangkat yang mengubah sinyal digital menjadi analog (dan sebaliknya) agar rumah bisa tersambung ke Internet!",
+		Correct = "Modem",
+		Explanation = "Modem = MOdulator-DEModulator. Ia mengubah sinyal agar data dari komputer bisa dikirim lewat jalur penyedia internet.",
+	},
+	{
+		Question = "Bawakan perangkat yang memancarkan sinyal Wi-Fi agar laptop dan ponsel bisa terhubung tanpa kabel!",
+		Correct = "AccessPoint",
+		Explanation = "Access Point memancarkan sinyal nirkabel (Wi-Fi) sehingga perangkat bisa masuk ke jaringan tanpa kabel.",
+	},
+	{
+		Question = "Bawakan kabel jaringan berisi 4 pasang kabel tembaga yang dipilin, yang paling sering dipakai di LAN!",
+		Correct = "KabelUTP",
+		Explanation = "UTP = Unshielded Twisted Pair: 8 kabel tembaga yang dipilin berpasangan untuk mengurangi gangguan sinyal.",
+	},
+	{
+		Question = "Bawakan konektor kotak bening dengan 8 pin yang dipasang di ujung kabel UTP!",
+		Correct = "RJ45",
+		Explanation = "RJ-45 adalah konektor 8 pin di ujung kabel UTP. Ujung inilah yang dicolokkan ke komputer atau switch.",
+	},
+	{
+		Question = "Bawakan kabel yang mengirim data menggunakan CAHAYA, sangat cepat, dan bisa menjangkau jarak sangat jauh!",
+		Correct = "FiberOptik",
+		Explanation = "Kabel fiber optik berisi serat kaca/plastik tipis yang mengalirkan cahaya. Sangat cepat dan tidak terganggu listrik.",
+	},
+	{
+		Question = "Bawakan kartu yang dipasang di dalam komputer agar komputer punya port dan bisa terhubung ke jaringan!",
+		Correct = "NIC",
+		Explanation = "NIC (Network Interface Card) atau kartu jaringan adalah 'pintu' komputer menuju jaringan.",
+	},
+	{
+		Question = "Bawakan kabel dengan inti tembaga di tengah dan pelindung logam, yang biasa dipakai untuk antena TV!",
+		Correct = "Coaxial",
+		Explanation = "Kabel coaxial punya inti tembaga, lapisan isolator, dan pelindung logam. Dulu juga dipakai pada jaringan komputer lama.",
+	},
+	{
+		Question = "Bawakan komputer bertenaga besar yang menyediakan layanan, misalnya website atau penyimpanan file, untuk komputer lain!",
+		Correct = "Server",
+		Explanation = "Server melayani permintaan dari komputer lain (client), misalnya menyimpan dan mengirim halaman website.",
+	},
+	{
+		Question = "Bawakan perangkat penghubung sederhana yang mengirim data ke SEMUA port sekaligus!",
+		Correct = "Hub",
+		Explanation = "Hub tidak bisa memilih tujuan, jadi data dikirim ke semua komputer. Karena itu jaringan dengan hub lebih lambat daripada switch.",
+	},
+	{
+		Question = "Di rumah, perangkat ini biasanya dipasang oleh penyedia internet (ISP) untuk menyambungkan jaringan rumah ke Internet. Bawakan!",
+		Correct = "Modem",
+		Explanation = "Modem dipasang oleh ISP sebagai penghubung antara jaringan rumah dan jaringan Internet milik penyedia layanan.",
+	},
+	{
+		Question = "Ujung kabel UTP harus dipasangi benda ini sebelum dicolokkan ke switch atau komputer. Bawakan benda itu!",
+		Correct = "RJ45",
+		Explanation = "Kabel UTP dipasangi konektor RJ-45 dengan alat crimping, lalu siap dicolokkan ke port LAN.",
+	},
+	{
+		Question = "Kamu ingin menghubungkan 20 komputer lab dalam satu LAN berkabel. Bawakan perangkat pusat yang paling tepat!",
+		Correct = "Switch",
+		Explanation = "Switch punya banyak port dan mengirim data secara efisien, sehingga cocok sebagai pusat jaringan LAN di lab.",
+	},
+	{
+		Question = "Jaringan antarpulau dan bawah laut memakai kabel ini karena sangat cepat dan tahan gangguan listrik. Bawakan!",
+		Correct = "FiberOptik",
+		Explanation = "Kabel serat optik bawah laut menghubungkan pulau dan negara, termasuk Indonesia, ke jaringan Internet dunia.",
+	},
+	{
+		Question = "Tanpa perangkat ini, komputer tidak punya 'pintu' untuk masuk ke jaringan. Bawakan!",
+		Correct = "NIC",
+		Explanation = "Setiap perangkat yang terhubung ke jaringan butuh NIC, baik kartu jaringan berkabel maupun Wi-Fi.",
+	},
+	{
+		Question = "Sekolah membagi koneksi internet ke jaringan lab dan jaringan kantor guru. Bawakan perangkat 'polisi lalu lintas' datanya!",
+		Correct = "Router",
+		Explanation = "Router menghubungkan beberapa jaringan sekaligus dan mengarahkan data ke jaringan yang benar.",
+	},
+	{
+		Question = "Agar siswa bisa memakai Wi-Fi di perpustakaan yang jauh dari ruang server, sekolah memasang perangkat ini. Bawakan!",
+		Correct = "AccessPoint",
+		Explanation = "Access Point tambahan memperluas jangkauan Wi-Fi ke ruangan yang jauh.",
+	},
+	{
+		Question = "Website sekolah disimpan dan dijalankan pada perangkat ini agar bisa diakses dari mana saja. Bawakan!",
+		Correct = "Server",
+		Explanation = "Website disimpan di server yang selalu menyala dan terhubung ke Internet.",
+	},
+	{
+		Question = "Bawakan kabel yang memiliki pasangan warna oranye, hijau, biru, dan cokelat yang saling dipilin!",
+		Correct = "KabelUTP",
+		Explanation = "Di dalam kabel UTP ada 4 pasang kabel berwarna: oranye, hijau, biru, dan cokelat (masing-masing dengan pasangan putih).",
+	},
+	{
+		Question = "Bawakan kabel bulat hitam dengan konektor logam berulir yang sering ditemukan di belakang televisi!",
+		Correct = "Coaxial",
+		Explanation = "Kabel antena TV adalah kabel coaxial. Konektornya biasanya logam yang diputar atau ditancapkan.",
+	},
+	{
+		Question = "Bawakan perangkat lama yang mirip switch, tetapi membuat jaringan lebih lambat karena data dikirim ke semua komputer!",
+		Correct = "Hub",
+		Explanation = "Hub mengirim data ke semua port (broadcast), sehingga jalur cepat penuh. Kini hub sudah banyak digantikan switch.",
+	},
+}
+
+-- Penjelasan singkat setiap perangkat, ditampilkan saat siswa membawa perangkat yang SALAH.
+QuizBank.Stage3Info = {
+	Router = "Router menghubungkan jaringan yang berbeda dan memilih jalur terbaik untuk data.",
+	Switch = "Switch menghubungkan banyak perangkat dalam satu LAN dan mengirim data hanya ke tujuannya.",
+	Hub = "Hub menghubungkan beberapa perangkat, tetapi mengirim data ke semua port sekaligus.",
+	Modem = "Modem mengubah sinyal digital ↔ analog untuk tersambung ke penyedia internet (ISP).",
+	AccessPoint = "Access Point memancarkan sinyal Wi-Fi agar perangkat bisa terhubung tanpa kabel.",
+	KabelUTP = "Kabel UTP berisi 4 pasang kabel tembaga terpilin, umum dipakai di jaringan LAN.",
+	RJ45 = "RJ-45 adalah konektor 8 pin di ujung kabel UTP.",
+	FiberOptik = "Fiber optik mengirim data dengan cahaya: sangat cepat dan bisa sangat jauh.",
+	NIC = "NIC (kartu jaringan) membuat komputer bisa terhubung ke jaringan.",
+	Coaxial = "Kabel coaxial punya inti tembaga dan pelindung logam, sering dipakai untuk antena TV.",
+	Server = "Server adalah komputer yang menyediakan layanan atau data untuk komputer lain.",
+}
 -- QuizBank.Stage4 = { ... } -- Bandwidth Glider
 
 return QuizBank

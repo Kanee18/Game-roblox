@@ -38,7 +38,7 @@ File suffixes tell you which object type to create:
 | `src/server/Services/Stages/*.luau` | **ModuleScript** in `ServerScriptService > Services > Stages` | same as file name, e.g. `Stage1_RoutingRunner` |
 | `src/server/QuizBank.luau` | **ModuleScript** directly in `ServerScriptService` | `QuizBank` |
 | `src/shared/Stage1Map.luau` | **ModuleScript** in `ReplicatedStorage > Shared` | `Stage1Map` |
-| `src/client/*.client.luau` | **LocalScript** in `StarterPlayer > StarterPlayerScripts` | `HudClient`, `AdminPanelClient`, `VideotronClient`, `Stage1Client`, `Stage2Client` |
+| `src/client/*.client.luau` | **LocalScript** in `StarterPlayer > StarterPlayerScripts` | `HudClient`, `AdminPanelClient`, `VideotronClient`, `Stage1Client`, `Stage2Client`, `Stage3Client` |
 
 Rule of thumb: `.server.luau` → Script, `.client.luau` → LocalScript, plain `.luau` → ModuleScript. Names must match exactly (without the extension).
 
